@@ -71,7 +71,7 @@ export default function Sidebar({
 
       {/* Sidebar Container */}
       <aside
-        className={`w-72 bg-white border-r border-slate-200/80 flex flex-col justify-between h-screen sticky top-0 left-0 p-5 overflow-y-auto select-none shadow-sm z-50 transition-transform duration-300 ${
+        className={`w-72 glass-sidebar flex flex-col justify-between h-screen sticky top-0 left-0 p-5 overflow-y-auto select-none z-50 transition-transform duration-300 ${
           isMobileOpen ? 'fixed translate-x-0' : 'hidden lg:flex'
         }`}
       >

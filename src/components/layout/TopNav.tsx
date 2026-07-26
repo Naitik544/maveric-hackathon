@@ -20,7 +20,7 @@ export default function TopNav({
   const { isSignedIn } = useUser();
 
   return (
-    <header className="w-full bg-white/80 backdrop-blur-md border-b border-slate-200/70 sticky top-0 z-20 px-4 sm:px-8 py-4 flex items-center justify-between gap-4">
+    <header className="w-full glass-nav sticky top-0 z-20 px-4 sm:px-8 py-4 flex items-center justify-between gap-4">
       {/* User Greeting & Mobile Menu Trigger */}
       <div className="flex items-center gap-3">
         {onMobileMenuToggle && (

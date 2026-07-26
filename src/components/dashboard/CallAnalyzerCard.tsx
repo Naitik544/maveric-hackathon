@@ -68,7 +68,7 @@ export default function CallAnalyzerCard({ onAnalyze }: CallAnalyzerCardProps) {
   const isSafe = analysis ? analysis.riskScore < 30 : false;
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between h-full">
+    <div className="glass-card glass-card-hover rounded-3xl p-6 flex flex-col justify-between h-full">
       <div className="space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between">
