@@ -16,6 +16,8 @@ import {
   Trash2
 } from 'lucide-react';
 import { INITIAL_CALL_DATA, ScamAnalysis } from '@/data/mockData';
+import { analyzeCall } from '@/lib/api';
+import { useToast } from '@/components/ui/Toast';
 
 interface CallAnalyzerCardProps {
   onAnalyze?: (result: ScamAnalysis) => void;
@@ -28,18 +30,31 @@ export default function CallAnalyzerCard({ onAnalyze }: CallAnalyzerCardProps) {
   const [transcriptText, setTranscriptText] = useState(INITIAL_CALL_DATA.transcript);
   const [analysis, setAnalysis] = useState<ScamAnalysis | null>(INITIAL_CALL_DATA.analysis);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { showToast } = useToast();
 
   const togglePlay = () => {
     setIsPlaying(!isPlaying);
   };
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
+    if (!transcriptText.trim()) return;
     setIsAnalyzing(true);
-    setTimeout(() => {
-      setAnalysis(INITIAL_CALL_DATA.analysis);
+    showToast('info', 'Analyzing Call Audio', 'Scanning call speech transcript with Gemini AI...');
+
+    try {
+      const result = await analyzeCall(transcriptText);
+      setAnalysis(result);
       setIsAnalyzing(false);
-      if (onAnalyze) onAnalyze(INITIAL_CALL_DATA.analysis);
-    }, 600);
+      showToast(
+        result.riskScore >= 70 ? 'warning' : 'success',
+        result.riskScore >= 70 ? 'Voice Fraud / Vishing Call Detected!' : 'Call Audio Appears Safe',
+        `Risk Score: ${result.riskScore}%`
+      );
+      if (onAnalyze) onAnalyze(result);
+    } catch (err: any) {
+      setIsAnalyzing(false);
+      showToast('error', 'Analysis Error', 'Unable to complete Call Audio scan.');
+    }
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

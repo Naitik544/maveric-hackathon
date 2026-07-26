@@ -15,6 +15,8 @@ import {
   FileImage
 } from 'lucide-react';
 import { INITIAL_WHATSAPP_DATA, ScamAnalysis } from '@/data/mockData';
+import { analyzeWhatsApp } from '@/lib/api';
+import { useToast } from '@/components/ui/Toast';
 
 interface WhatsAppCheckerCardProps {
   onAnalyze?: (result: ScamAnalysis) => void;
@@ -23,44 +25,33 @@ interface WhatsAppCheckerCardProps {
 export default function WhatsAppCheckerCard({ onAnalyze }: WhatsAppCheckerCardProps) {
   const [waText, setWaText] = useState(INITIAL_WHATSAPP_DATA.sampleMessage);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<ScamAnalysis | null>(INITIAL_WHATSAPP_DATA.analysis);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { showToast } = useToast();
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     if (!waText.trim()) return;
     setIsAnalyzing(true);
-    setTimeout(() => {
-      const isScam = /won|prize|claim|lakh|crore|http|link|whatsapp|kbc/i.test(waText);
-      const newAnalysis: ScamAnalysis = isScam
-        ? {
-            riskScore: 89,
-            riskLevel: 'High Risk',
-            reasons: [
-              'Fake prize or lottery promise',
-              'Suspicious website URL',
-              'Tries to steal your personal info'
-            ],
-            recommendedActions: [
-              'Do not click on any link',
-              'Do not share personal information',
-              'Ignore and block the sender',
-              'Report this message'
-            ],
-            summary: 'The WhatsApp message is a deceptive lottery fraud scheme.'
-          }
-        : {
-            riskScore: 8,
-            riskLevel: 'Safe',
-            reasons: ['No financial triggers detected', 'Known conversational tone'],
-            recommendedActions: ['No action required'],
-            summary: 'Message appears safe.'
-          };
+    setErrorMessage(null);
+    showToast('info', 'Analyzing WhatsApp Message', 'Scanning text with Gemini AI threat engine...');
 
-      setAnalysis(newAnalysis);
+    try {
+      const result = await analyzeWhatsApp(waText);
+      setAnalysis(result);
       setIsAnalyzing(false);
-      if (onAnalyze) onAnalyze(newAnalysis);
-    }, 600);
+      showToast(
+        result.riskScore >= 70 ? 'warning' : 'success',
+        result.riskScore >= 70 ? 'High Risk Scam Detected!' : 'WhatsApp Message Appears Safe',
+        `Risk Score: ${result.riskScore}%`
+      );
+      if (onAnalyze) onAnalyze(result);
+    } catch (err: any) {
+      setIsAnalyzing(false);
+      setErrorMessage('Failed to analyze WhatsApp message.');
+      showToast('error', 'Analysis Error', 'Unable to complete WhatsApp scan.');
+    }
   };
 
   const handlePaste = async () => {

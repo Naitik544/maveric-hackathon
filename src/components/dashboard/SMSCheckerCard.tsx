@@ -14,6 +14,8 @@ import {
   FileText
 } from 'lucide-react';
 import { INITIAL_SMS_DATA, ScamAnalysis } from '@/data/mockData';
+import { analyzeSMS } from '@/lib/api';
+import { useToast } from '@/components/ui/Toast';
 
 interface SMSCheckerCardProps {
   onAnalyze?: (result: ScamAnalysis) => void;
@@ -22,44 +24,33 @@ interface SMSCheckerCardProps {
 export default function SMSCheckerCard({ onAnalyze }: SMSCheckerCardProps) {
   const [smsText, setSmsText] = useState(INITIAL_SMS_DATA.sampleText);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<ScamAnalysis | null>(INITIAL_SMS_DATA.analysis);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { showToast } = useToast();
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     if (!smsText.trim()) return;
     setIsAnalyzing(true);
-    setTimeout(() => {
-      const isSuspicious = /bit\.ly|kyc|block|immediate|bank|account|update|otp|lien/i.test(smsText);
-      const newAnalysis: ScamAnalysis = isSuspicious
-        ? {
-            riskScore: 96,
-            riskLevel: 'High Risk',
-            reasons: [
-              'Contains suspicious link (bit.ly or unverified URL)',
-              'Creates artificial urgency ("blocked", "immediately")',
-              'Asks for sensitive bank account / KYC details'
-            ],
-            recommendedActions: [
-              'Do not click on the link',
-              'Do not share any OTP, PIN or CVV',
-              'Contact your bank using official number',
-              'Report this message'
-            ],
-            summary: 'Message exhibits classic banking phishing flags designed to capture credentials.'
-          }
-        : {
-            riskScore: 12,
-            riskLevel: 'Safe',
-            reasons: ['No suspicious links found', 'Normal informal tone', 'No sensitive credentials requested'],
-            recommendedActions: ['Standard caution applies', 'No immediate threat detected'],
-            summary: 'Message appears safe.'
-          };
+    setErrorMessage(null);
+    showToast('info', 'Analyzing SMS', 'Connecting to SafeBank AI Gemini API...');
 
-      setAnalysis(newAnalysis);
+    try {
+      const result = await analyzeSMS(smsText);
+      setAnalysis(result);
       setIsAnalyzing(false);
-      if (onAnalyze) onAnalyze(newAnalysis);
-    }, 600);
+      showToast(
+        result.riskScore >= 70 ? 'warning' : 'success',
+        result.riskScore >= 70 ? 'High Risk Scam Detected!' : 'SMS Appears Safe',
+        `Risk Score: ${result.riskScore}%`
+      );
+      if (onAnalyze) onAnalyze(result);
+    } catch (err: any) {
+      setIsAnalyzing(false);
+      setErrorMessage('Failed to analyze SMS. Please try again.');
+      showToast('error', 'Analysis Error', 'Unable to complete SMS scan.');
+    }
   };
 
   const handlePaste = async () => {
