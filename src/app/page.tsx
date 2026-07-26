@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Sidebar, { NavTab } from '@/components/layout/Sidebar';
 import TopNav from '@/components/layout/TopNav';
+import DashboardAnalytics from '@/components/dashboard/DashboardAnalytics';
 import SMSCheckerCard from '@/components/dashboard/SMSCheckerCard';
 import WhatsAppCheckerCard from '@/components/dashboard/WhatsAppCheckerCard';
 import CallAnalyzerCard from '@/components/dashboard/CallAnalyzerCard';
@@ -98,6 +99,9 @@ export default function Home() {
                   </div>
                 </div>
               </div>
+
+              {/* Real-time Dashboard Analytics Cards & Threat Distribution */}
+              <DashboardAnalytics />
 
               {/* 2. Three Analyzer Cards + Overall Result Card */}
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 items-stretch">

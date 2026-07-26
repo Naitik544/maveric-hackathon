@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Globe, ShieldCheck, ChevronDown } from 'lucide-react';
+import { Globe, ShieldCheck, ChevronDown, User } from 'lucide-react';
 import { SUPPORTED_LANGUAGES } from '@/data/mockData';
+import { SignInButton, UserButton, useUser } from '@clerk/nextjs';
 
 interface TopNavProps {
   selectedLanguage: string;
@@ -14,6 +15,7 @@ export default function TopNav({
   setSelectedLanguage,
 }: TopNavProps) {
   const currentLangObj = SUPPORTED_LANGUAGES.find(l => l.code === selectedLanguage) || SUPPORTED_LANGUAGES[0];
+  const { isSignedIn } = useUser();
 
   return (
     <header className="w-full bg-white/80 backdrop-blur-md border-b border-slate-200/70 sticky top-0 z-20 px-8 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -72,6 +74,26 @@ export default function TopNav({
               <span>Safe</span>
             </div>
           </div>
+        </div>
+
+        {/* Clerk Auth Integration */}
+        <div className="pl-2 border-l border-slate-200 flex items-center gap-2">
+          {isSignedIn ? (
+            <UserButton
+              appearance={{
+                elements: {
+                  avatarBox: "w-9 h-9 rounded-xl shadow-xs"
+                }
+              }}
+            />
+          ) : (
+            <SignInButton mode="modal">
+              <button className="bg-[#5345ED] hover:bg-[#4335dc] text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-xs flex items-center gap-1.5 cursor-pointer">
+                <User className="w-3.5 h-3.5" />
+                <span>Sign In</span>
+              </button>
+            </SignInButton>
+          )}
         </div>
       </div>
     </header>

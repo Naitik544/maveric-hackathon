@@ -1,0 +1,68 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id              String            @id @default(uuid())
+  clerkId         String            @unique
+  email           String            @unique
+  name            String?
+  phone           String?
+  city            String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  analyses        AnalysisHistory[]
+  scamReports     ScamReport[]
+  uploadedFiles   UploadedFile[]
+
+  @@map("users")
+}
+
+model AnalysisHistory {
+  id               String   @id @default(uuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type             String   // "SMS", "WhatsApp", "Call"
+  inputContent     String   @db.Text
+  riskScore        Int
+  riskLevel        String   // "High Risk", "Medium Risk", "Low Risk", "Safe"
+  scamCategory     String
+  confidence       Float    @default(99.0)
+  reasons          String[]
+  safetyAdvice     String[]
+  summary          String   @db.Text
+  createdAt        DateTime @default(now())
+
+  @@map("analysis_history")
+}
+
+model ScamReport {
+  id               String   @id @default(uuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scamType         String   // e.g. "SMS Phishing", "WhatsApp Fraud"
+  targetIdentifier String   // Scammer number, URL or Header
+  description      String   @db.Text
+  screenshotUrl    String?
+  status           String   @default("Pending Review") // "Pending Review", "Verified", "Reported to 1930"
+  createdAt        DateTime @default(now())
+
+  @@map("scam_reports")
+}
+
+model UploadedFile {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileName   String
+  fileUrl    String
+  fileType   String   // "audio/mp3", "image/png", "text/plain"
+  fileSize   Int      // In bytes
+  createdAt  DateTime @default(now())
+
+  @@map("uploaded_files")
+}
