@@ -1,32 +1,46 @@
 'use client';
 
 import React from 'react';
-import { Globe, ShieldCheck, ChevronDown, User } from 'lucide-react';
+import { Globe, ShieldCheck, ChevronDown, User, Menu } from 'lucide-react';
 import { SUPPORTED_LANGUAGES } from '@/data/mockData';
 import { SignInButton, UserButton, useUser } from '@clerk/nextjs';
 
 interface TopNavProps {
   selectedLanguage: string;
   setSelectedLanguage: (lang: string) => void;
+  onMobileMenuToggle?: () => void;
 }
 
 export default function TopNav({
   selectedLanguage,
   setSelectedLanguage,
+  onMobileMenuToggle
 }: TopNavProps) {
   const currentLangObj = SUPPORTED_LANGUAGES.find(l => l.code === selectedLanguage) || SUPPORTED_LANGUAGES[0];
   const { isSignedIn } = useUser();
 
   return (
-    <header className="w-full bg-white/80 backdrop-blur-md border-b border-slate-200/70 sticky top-0 z-20 px-8 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-      {/* User Greeting & Subtitle */}
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-          Hello, User! <span className="animate-bounce">👋</span>
-        </h1>
-        <p className="text-sm font-medium text-slate-500 mt-0.5">
-          We help you detect scams and stay safe in digital banking.
-        </p>
+    <header className="w-full bg-white/80 backdrop-blur-md border-b border-slate-200/70 sticky top-0 z-20 px-4 sm:px-8 py-4 flex items-center justify-between gap-4">
+      {/* User Greeting & Mobile Menu Trigger */}
+      <div className="flex items-center gap-3">
+        {onMobileMenuToggle && (
+          <button
+            onClick={onMobileMenuToggle}
+            className="lg:hidden p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
+            aria-label="Open Navigation Menu"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        )}
+
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+            Hello, User! <span className="animate-bounce">👋</span>
+          </h1>
+          <p className="text-xs sm:text-sm font-medium text-slate-500 mt-0.5 hidden sm:block">
+            We help you detect scams and stay safe in digital banking.
+          </p>
+        </div>
       </div>
 
       {/* Right Controls */}
