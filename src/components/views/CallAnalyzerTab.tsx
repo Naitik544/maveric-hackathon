@@ -155,12 +155,21 @@ export default function CallAnalyzerTab() {
             recognition.lang = 'en-US';
 
             recognition.onresult = (event: any) => {
-              let textResult = '';
-              for (let i = event.resultIndex; i < event.results.length; i++) {
-                textResult += event.results[i][0].transcript;
+              let finalTranscript = '';
+              let interimTranscript = '';
+
+              for (let i = 0; i < event.results.length; i++) {
+                const chunk = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                  finalTranscript += chunk + ' ';
+                } else {
+                  interimTranscript += chunk;
+                }
               }
-              if (textResult.trim()) {
-                setTranscript(prev => (prev ? `${prev} ${textResult}` : textResult));
+
+              const cleanTranscript = (finalTranscript + interimTranscript).trim();
+              if (cleanTranscript) {
+                setTranscript(cleanTranscript);
               }
             };
 
