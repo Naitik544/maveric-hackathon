@@ -11,7 +11,9 @@ import {
   Lightbulb,
   FileText,
   Flag,
-  Sparkles
+  Sparkles,
+  Volume2,
+  VolumeX
 } from 'lucide-react';
 import FullReportModal from './FullReportModal';
 import { ScamAnalysis } from '@/data/mockData';
@@ -171,7 +173,7 @@ export default function OverallResultCard({
             </div>
           </div>
 
-          {/* AI Summary Box */}
+          {/* AI Summary Box with Voice Readout Button */}
           <div
             className={`rounded-2xl p-4 space-y-2 border transition-all ${
               isScam
@@ -181,10 +183,33 @@ export default function OverallResultCard({
                 : 'bg-emerald-50/80 border-emerald-200/80'
             }`}
           >
-            <div className="flex items-center gap-2 font-bold text-xs text-slate-900">
-              <Lightbulb className="w-4 h-4 text-amber-600 shrink-0" />
-              <span>{t.dashboard.aiSummaryTitle}</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 font-bold text-xs text-slate-900">
+                <Lightbulb className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>{t.dashboard.aiSummaryTitle}</span>
+              </div>
+
+              {/* Text to Speech Voice Readout Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(currentSummary);
+                    if (selectedLanguage === 'hi') utterance.lang = 'hi-IN';
+                    else if (selectedLanguage === 'gu') utterance.lang = 'gu-IN';
+                    else utterance.lang = 'en-US';
+                    window.speechSynthesis.speak(utterance);
+                  }
+                }}
+                className="flex items-center gap-1 text-[11px] font-bold text-[#5345ED] bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-lg transition-colors cursor-pointer border border-indigo-200/60"
+                title="Read Diagnosis Aloud"
+              >
+                <Volume2 className="w-3.5 h-3.5" />
+                <span>Listen (સાંભળો / सुनो)</span>
+              </button>
             </div>
+
             <p className="text-xs text-slate-700 font-medium leading-relaxed">
               {currentSummary}
             </p>

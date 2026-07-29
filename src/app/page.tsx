@@ -9,6 +9,7 @@ import SMSCheckerCard from '@/components/dashboard/SMSCheckerCard';
 import WhatsAppCheckerCard from '@/components/dashboard/WhatsAppCheckerCard';
 import CallAnalyzerCard from '@/components/dashboard/CallAnalyzerCard';
 import OverallResultCard from '@/components/dashboard/OverallResultCard';
+import UPIVerifierCard from '@/components/dashboard/UPIVerifierCard';
 import StaySafeTips from '@/components/dashboard/StaySafeTips';
 import RecentHistory from '@/components/dashboard/RecentHistory';
 
@@ -143,16 +144,21 @@ export default function Home() {
                   </div>
 
                   {/* 3. Live Overall AI Result Panel (Prominent Wide Section) */}
-                  <div className="space-y-4">
-                    <OverallResultCard
-                      analysis={overallResult}
-                      riskScore={overallResult.riskScore}
-                      riskLevel={overallResult.riskLevel}
-                      summary={overallResult.summary}
-                      selectedLanguage={selectedLanguage}
-                      onReportClick={() => setActiveTab('report-scam')}
-                      onViewReportClick={() => setActiveTab('history')}
-                    />
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    <div className="lg:col-span-7">
+                      <OverallResultCard
+                        analysis={overallResult}
+                        riskScore={overallResult.riskScore}
+                        riskLevel={overallResult.riskLevel}
+                        summary={overallResult.summary}
+                        selectedLanguage={selectedLanguage}
+                        onReportClick={() => setActiveTab('report-scam')}
+                        onViewReportClick={() => setActiveTab('history')}
+                      />
+                    </div>
+                    <div className="lg:col-span-5">
+                      <UPIVerifierCard selectedLanguage={selectedLanguage} />
+                    </div>
                   </div>
 
                   {/* 4. Real-time Dashboard Analytics Cards & Threat Distribution */}
