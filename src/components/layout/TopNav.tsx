@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Globe, ShieldCheck, ChevronDown, User, Menu } from 'lucide-react';
+import { Globe, ShieldCheck, ChevronDown, User, Menu, HelpCircle } from 'lucide-react';
 import { SUPPORTED_LANGUAGES } from '@/data/mockData';
 import { SignInButton, UserButton, useUser } from '@clerk/nextjs';
 import { getTranslation } from '@/lib/translations';
@@ -10,12 +10,14 @@ interface TopNavProps {
   selectedLanguage: string;
   setSelectedLanguage: (lang: string) => void;
   onMobileMenuToggle?: () => void;
+  onOpenTutorial?: () => void;
 }
 
 export default function TopNav({
   selectedLanguage,
   setSelectedLanguage,
-  onMobileMenuToggle
+  onMobileMenuToggle,
+  onOpenTutorial
 }: TopNavProps) {
   const currentLangObj = SUPPORTED_LANGUAGES.find(l => l.code === selectedLanguage) || SUPPORTED_LANGUAGES[0];
   const { isSignedIn } = useUser();
@@ -47,6 +49,18 @@ export default function TopNav({
 
       {/* Right Controls */}
       <div className="flex items-center gap-4">
+        {/* Quick Tutorial Button */}
+        {onOpenTutorial && (
+          <button
+            onClick={onOpenTutorial}
+            className="flex items-center gap-1.5 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-[#5345ED] text-xs font-bold px-3 py-2 rounded-xl transition-all shadow-xs cursor-pointer"
+            title="How to Use Website Tutorial"
+          >
+            <HelpCircle className="w-4 h-4 text-[#5345ED]" />
+            <span className="hidden md:inline">Quick Tutorial (કેવી રીતે વાપરવું)</span>
+          </button>
+        )}
+
         {/* Top Language Selector */}
         <div className="relative">
           <button 

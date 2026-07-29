@@ -22,6 +22,9 @@ import SafetyTipsTab from '@/components/views/SafetyTipsTab';
 import ReportScamTab from '@/components/views/ReportScamTab';
 import HistoryTab from '@/components/views/HistoryTab';
 import SettingsTab from '@/components/views/SettingsTab';
+import AdminPanelTab from '@/components/views/AdminPanelTab';
+import PreloaderScreen from '@/components/ui/PreloaderScreen';
+import OnboardingTutorialModal from '@/components/dashboard/OnboardingTutorialModal';
 import { ScamAnalysis } from '@/data/mockData';
 import { ShieldCheck, Zap, Lock, Sparkles, Activity } from 'lucide-react';
 import { getTranslation } from '@/lib/translations';
@@ -30,6 +33,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<NavTab>('dashboard');
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isTutorialOpen, setIsTutorialOpen] = useState(false);
 
   const t = getTranslation(selectedLanguage);
 
@@ -48,6 +52,15 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen bg-[#F6F8FC] text-slate-900 font-sans antialiased overflow-x-hidden">
+      {/* High-Tech Animated Radar Preloader Screen */}
+      <PreloaderScreen />
+
+      {/* Interactive Step-by-Step Onboarding Tutorial Guided Tour Modal */}
+      <OnboardingTutorialModal
+        isOpen={isTutorialOpen}
+        onClose={() => setIsTutorialOpen(false)}
+      />
+
       {/* Sidebar */}
       <Sidebar
         activeTab={activeTab}
@@ -65,6 +78,7 @@ export default function Home() {
           selectedLanguage={selectedLanguage}
           setSelectedLanguage={setSelectedLanguage}
           onMobileMenuToggle={() => setIsMobileOpen(true)}
+          onOpenTutorial={() => setIsTutorialOpen(true)}
         />
 
         {/* Dynamic View Body with Framer Motion Page Transitions */}
@@ -178,6 +192,7 @@ export default function Home() {
                   setSelectedLanguage={setSelectedLanguage}
                 />
               )}
+              {activeTab === 'admin' && <AdminPanelTab />}
             </motion.div>
           </AnimatePresence>
         </main>

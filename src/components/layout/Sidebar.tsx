@@ -25,7 +25,8 @@ export type NavTab =
   | 'safety-tips'
   | 'report-scam'
   | 'history'
-  | 'settings';
+  | 'settings'
+  | 'admin';
 
 interface SidebarProps {
   activeTab: NavTab;
@@ -55,6 +56,7 @@ export default function Sidebar({
     { id: 'report-scam' as NavTab, label: t.sidebar.reportScam, icon: Flag },
     { id: 'history' as NavTab, label: t.sidebar.history, icon: History },
     { id: 'settings' as NavTab, label: t.sidebar.settings, icon: Settings },
+    { id: 'admin' as NavTab, label: 'Admin Command Center', icon: Shield },
   ];
 
   const handleNavClick = (tab: NavTab) => {
