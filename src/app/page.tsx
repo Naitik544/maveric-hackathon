@@ -10,6 +10,7 @@ import WhatsAppCheckerCard from '@/components/dashboard/WhatsAppCheckerCard';
 import CallAnalyzerCard from '@/components/dashboard/CallAnalyzerCard';
 import OverallResultCard from '@/components/dashboard/OverallResultCard';
 import UPIVerifierCard from '@/components/dashboard/UPIVerifierCard';
+import MaverickHeroStudio from '@/components/dashboard/MaverickHeroStudio';
 import StaySafeTips from '@/components/dashboard/StaySafeTips';
 import RecentHistory from '@/components/dashboard/RecentHistory';
 
@@ -77,48 +78,17 @@ export default function Home() {
             >
               {activeTab === 'dashboard' && (
                 <div className="space-y-8 max-w-[1600px] mx-auto">
-                  {/* 1. Welcome Section Banner */}
-                  <div className="bg-gradient-to-r from-white via-indigo-50/40 to-purple-50/30 border border-slate-200/80 rounded-3xl p-6 md:p-8 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
-                    <div className="space-y-2 max-w-2xl relative z-10">
-                      <div className="inline-flex items-center gap-2 bg-indigo-100/80 border border-indigo-200 text-[#5345ED] text-[11px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
-                        <Sparkles className="w-3.5 h-3.5" />
-                        <span>{t.dashboard.welcomeBadge}</span>
-                      </div>
-
-                      <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
-                        {t.dashboard.welcomeTitle} <span className="inline-block animate-bounce">👋</span>
-                      </h1>
-
-                      <p className="text-xs md:text-sm text-slate-600 font-medium leading-relaxed">
-                        {t.dashboard.welcomeDesc}
-                      </p>
-
-                      <div className="flex flex-wrap items-center gap-3 pt-2">
-                        <div className="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 shadow-2xs">
-                          <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                          <span>{t.dashboard.instantAi}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 shadow-2xs">
-                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-                          <span>{t.dashboard.precision}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 shadow-2xs">
-                          <Lock className="w-3.5 h-3.5 text-[#5345ED]" />
-                          <span>{t.dashboard.upiProtection}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Decorative Graphic */}
-                    <div className="hidden lg:flex items-center justify-center shrink-0">
-                      <div className="w-24 h-24 rounded-3xl bg-gradient-to-tr from-[#5345ED] to-indigo-600 flex items-center justify-center text-white shadow-xl shadow-indigo-500/25">
-                        <ShieldCheck className="w-12 h-12 stroke-[2.2]" />
-                      </div>
-                    </div>
-                  </div>
+                  {/* 1. MAVERICK.AI HIGH-UTILITY HERO STUDIO & LIVE PIPELINE */}
+                  <MaverickHeroStudio
+                    selectedLanguage={selectedLanguage}
+                    onInitiateScanClick={() => {
+                      const el = document.getElementById('ai-studio-section');
+                      if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                  />
 
                   {/* 2. Sequential AI Scam Checkers Grid (3 Clean Columns) */}
-                  <div className="space-y-4">
+                  <div id="ai-studio-section" className="space-y-4 pt-4">
                     <div className="flex items-center justify-between">
                       <div>
                         <h2 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
