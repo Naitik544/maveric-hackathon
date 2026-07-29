@@ -17,9 +17,14 @@ import {
   Tag,
   AlertTriangle,
   History,
-  Copy
+  FileText,
+  Lock,
+  Search,
+  ShieldAlert,
+  Info
 } from 'lucide-react';
 import { analyzeSMS } from '@/lib/api';
+import { useToast } from '@/components/ui/Toast';
 
 export interface SMSAnalysisResult {
   riskScore: number;
@@ -32,42 +37,13 @@ export interface SMSAnalysisResult {
   summary: string;
 }
 
-export const PRESET_EXAMPLE_SMS = [
-  {
-    id: 'ex-1',
-    category: 'Bank KYC Phishing',
-    title: 'SBI Account Blocked Alert',
-    text: 'Dear Customer, Your SBI account will be blocked today due to non-updated PAN Card. Click http://sbi-kyc-update.com immediately to avoid blockage.'
-  },
-  {
-    id: 'ex-2',
-    category: 'Electricity Bill Fraud',
-    title: 'Power Disconnection Notice',
-    text: 'Urgent: Electricity power will be disconnected at 9:30 PM due to unpaid previous month bill. Contact Electricity Officer immediately at 9876543210.'
-  },
-  {
-    id: 'ex-3',
-    category: 'Part-Time Job Scam',
-    title: 'YouTube Rating Job',
-    text: 'Earn ₹3000-₹8000 daily by rating YouTube videos from home! No experience required. Telegram contact: @earn_easy_fast'
-  },
-  {
-    id: 'ex-4',
-    category: 'Reward Points Expiry',
-    title: 'Credit Card Reward Points',
-    text: 'Your HDFC Reward Points (value ₹4,850) will expire tonight. Redeem now into your bank account: http://hdfc-rewards-redeem.in'
-  },
-  {
-    id: 'ex-5',
-    category: 'Income Tax Refund',
-    title: 'Fake IT Refund Claim',
-    text: 'Dear Taxpayer, An Income Tax Refund of ₹15,400 has been approved. Please verify your bank account details to claim: http://incometax-refund-claim.org'
-  }
-];
-
 export default function SMSCheckerTab() {
-  const [smsText, setSmsText] = useState(PRESET_EXAMPLE_SMS[0].text);
+  const [smsText, setSmsText] = useState(
+    'Dear Customer, Your SBI account will be blocked today due to non-updated PAN Card. Click http://sbi-kyc-update.com immediately to avoid blockage.'
+  );
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const { showToast } = useToast();
+
   const [analysis, setAnalysis] = useState<SMSAnalysisResult | null>({
     riskScore: 96,
     riskLevel: 'High Risk',
@@ -111,10 +87,10 @@ export default function SMSCheckerTab() {
     }
   ]);
 
-  // Mock API Call Simulation
   const handleAnalyze = async () => {
     if (!smsText.trim()) return;
     setIsAnalyzing(true);
+    showToast('info', 'Analyzing SMS', 'Connecting to SafeBank AI threat engine...');
 
     try {
       const result = await analyzeSMS(smsText);
@@ -137,19 +113,16 @@ export default function SMSCheckerTab() {
           score: result.riskScore,
           time: 'Just now'
         },
-        ...prev.slice(0, 4)
+        ...prev.slice(0, 3)
       ]);
+      showToast(
+        result.riskScore >= 70 ? 'warning' : 'success',
+        result.riskScore >= 70 ? 'SMS Fraud Detected!' : 'SMS Appears Safe',
+        `Risk Score: ${result.riskScore}%`
+      );
     } catch (error) {
       console.error('[SMSCheckerTab] Backend analysis failed', error);
-      setAnalysis({
-        riskScore: 0,
-        riskLevel: 'Safe',
-        scamCategory: 'Analysis Failed',
-        confidence: 0,
-        reasons: ['Unable to connect to backend API.'],
-        safeSuggestions: ['Please try again later or check backend connectivity.'],
-        summary: 'Backend analysis unavailable.'
-      });
+      showToast('error', 'Analysis Error', 'Unable to complete SMS scan.');
     } finally {
       setIsAnalyzing(false);
     }
@@ -169,11 +142,11 @@ export default function SMSCheckerTab() {
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
-      {/* Page Title & Header */}
+      {/* Title Header */}
       <div>
         <div className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-100 text-[#5345ED] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-2">
           <MessageSquare className="w-3.5 h-3.5" />
-          <span>Dedicated SMS Analyzer</span>
+          <span>Dedicated SMS Threat Inspector</span>
         </div>
         <h1 className="text-2xl font-black text-slate-900 tracking-tight">
           SMS Scam Checker
@@ -184,13 +157,14 @@ export default function SMSCheckerTab() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Large Textarea Input & Analysis Trigger */}
+        {/* Left Column: Input Box & Security Checklist */}
         <div className="lg:col-span-7 space-y-6">
+          {/* Main Input Box */}
           <div className="bg-white rounded-3xl border border-slate-200/80 p-6 md:p-7 shadow-sm space-y-5">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                 <MessageSquare className="w-4 h-4 text-[#5345ED]" />
-                <span>Paste SMS Content</span>
+                <span>Paste SMS Content Below</span>
               </h3>
 
               <div className="flex items-center gap-2">
@@ -207,20 +181,20 @@ export default function SMSCheckerTab() {
                   type="button"
                   onClick={() => setSmsText('')}
                   className="p-1.5 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
-                  title="Clear"
+                  title="Clear Input"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             </div>
 
-            {/* Large Textarea */}
+            {/* Textarea Input */}
             <div className="relative">
               <textarea
                 value={smsText}
                 onChange={(e) => setSmsText(e.target.value)}
                 rows={6}
-                placeholder="Paste the SMS message you received here..."
+                placeholder="Paste suspicious SMS message here..."
                 className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs text-slate-800 font-mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#5345ED] focus:bg-white transition-all resize-none shadow-xs"
               />
               <div className="absolute bottom-3 right-3 text-[10px] text-slate-400 font-mono">
@@ -228,7 +202,7 @@ export default function SMSCheckerTab() {
               </div>
             </div>
 
-            {/* Analyze Button */}
+            {/* Action Buttons */}
             <button
               onClick={handleAnalyze}
               disabled={isAnalyzing || !smsText.trim()}
@@ -248,12 +222,64 @@ export default function SMSCheckerTab() {
             </button>
           </div>
 
+          {/* 🌟 Rich Filler Component: SMS Security Inspection Checklist */}
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-6 space-y-4 shadow-sm">
+            <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
+              <div className="w-9 h-9 rounded-2xl bg-indigo-50 flex items-center justify-center text-[#5345ED]">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900">SMS Safety Inspection Rules</h3>
+                <p className="text-[11px] text-slate-500 font-medium">How SafeBank AI detects SMS phishing</p>
+              </div>
+            </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/70 space-y-1">
+                <span className="font-bold text-slate-900 flex items-center gap-1.5">
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+                  Shortened / Fake Links
+                </span>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Real banks use official domain URLs (`sbi.co.in`, `hdfcbank.com`). Avoid clicking `bit.ly` or `.in` domains.
+                </p>
+              </div>
+
+              <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/70 space-y-1">
+                <span className="font-bold text-slate-900 flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-red-500" />
+                  Artificial Urgency
+                </span>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Messages claiming *"Account blocked today"* or *"Electricity cut in 1 hour"* are designed to create panic.
+                </p>
+              </div>
+
+              <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/70 space-y-1">
+                <span className="font-bold text-slate-900 flex items-center gap-1.5">
+                  <Lock className="w-3.5 h-3.5 text-indigo-500" />
+                  OTP / KYC Verification
+                </span>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Banks NEVER ask for OTPs or PINs over SMS or external web forms.
+                </p>
+              </div>
+
+              <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/70 space-y-1">
+                <span className="font-bold text-slate-900 flex items-center gap-1.5">
+                  <ShieldAlert className="w-3.5 h-3.5 text-emerald-600" />
+                  Unknown Mobile Numbers
+                </span>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Official bank SMS comes from registered 6-letter sender IDs (e.g. `AX-SBINB`), not 10-digit mobile numbers.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Right Column: Result Card & Recent Analyses */}
+        {/* Right Column: Result Card & Recent Scans */}
         <div className="lg:col-span-5 space-y-6">
-          {/* Result Card */}
           <AnimatePresence mode="wait">
             {isAnalyzing ? (
               <motion.div
@@ -361,7 +387,7 @@ export default function SMSCheckerTab() {
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
                 <History className="w-4 h-4 text-[#5345ED]" />
-                <span>Recent SMS Analyses</span>
+                <span>Recent SMS Scans</span>
               </h3>
             </div>
 
