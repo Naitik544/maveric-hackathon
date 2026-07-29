@@ -10,7 +10,7 @@ import WhatsAppCheckerCard from '@/components/dashboard/WhatsAppCheckerCard';
 import CallAnalyzerCard from '@/components/dashboard/CallAnalyzerCard';
 import OverallResultCard from '@/components/dashboard/OverallResultCard';
 import UPIVerifierCard from '@/components/dashboard/UPIVerifierCard';
-import MaverickHeroStudio from '@/components/dashboard/MaverickHeroStudio';
+import GlassHeroStudio from '@/components/dashboard/GlassHeroStudio';
 import StaySafeTips from '@/components/dashboard/StaySafeTips';
 import RecentHistory from '@/components/dashboard/RecentHistory';
 
@@ -78,13 +78,9 @@ export default function Home() {
             >
               {activeTab === 'dashboard' && (
                 <div className="space-y-8 max-w-[1600px] mx-auto">
-                  {/* 1. MAVERICK.AI HIGH-UTILITY HERO STUDIO & LIVE PIPELINE */}
-                  <MaverickHeroStudio
+                  {/* 1. ULTRA-PREMIUM GLASS HERO STUDIO BANNER */}
+                  <GlassHeroStudio
                     selectedLanguage={selectedLanguage}
-                    onInitiateScanClick={() => {
-                      const el = document.getElementById('ai-studio-section');
-                      if (el) el.scrollIntoView({ behavior: 'smooth' });
-                    }}
                   />
 
                   {/* 2. Sequential AI Scam Checkers Grid (3 Clean Columns) */}
