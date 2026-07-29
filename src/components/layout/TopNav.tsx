@@ -52,6 +52,8 @@ export default function TopNav({
         {/* Quick Tutorial Button */}
         {onOpenTutorial && (
           <button
+            type="button"
+            suppressHydrationWarning
             onClick={onOpenTutorial}
             className="flex items-center gap-1.5 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-[#5345ED] text-xs font-bold px-3 py-2 rounded-xl transition-all shadow-xs cursor-pointer"
             title="How to Use Website Tutorial"

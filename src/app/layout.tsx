@@ -28,9 +28,10 @@ export default function RootLayout({
     <ClerkProvider>
       <html
         lang="en"
+        suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       >
-        <body className="min-h-full flex flex-col relative overflow-x-hidden">
+        <body suppressHydrationWarning className="min-h-full flex flex-col relative overflow-x-hidden">
           {/* Ambient Glassmorphism Floating Glow Orbs */}
           <div className="ambient-orb-1" />
           <div className="ambient-orb-2" />
