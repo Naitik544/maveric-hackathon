@@ -16,12 +16,15 @@ import {
 import { INITIAL_SMS_DATA, ScamAnalysis } from '@/data/mockData';
 import { analyzeSMS } from '@/lib/api';
 import { useToast } from '@/components/ui/Toast';
+import { getTranslation } from '@/lib/translations';
 
 interface SMSCheckerCardProps {
   onAnalyze?: (result: ScamAnalysis) => void;
+  selectedLanguage?: string;
 }
 
-export default function SMSCheckerCard({ onAnalyze }: SMSCheckerCardProps) {
+export default function SMSCheckerCard({ onAnalyze, selectedLanguage = 'en' }: SMSCheckerCardProps) {
+  const t = getTranslation(selectedLanguage);
   const [smsText, setSmsText] = useState(INITIAL_SMS_DATA.sampleText);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -88,8 +91,8 @@ export default function SMSCheckerCard({ onAnalyze }: SMSCheckerCardProps) {
               <MessageSquare className="w-5 h-5 fill-white/20" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900">SMS Checker</h2>
-              <p className="text-xs text-slate-500 font-medium">Paste SMS or upload message file</p>
+              <h2 className="text-base font-bold text-slate-900">{t.cards.smsTitle}</h2>
+              <p className="text-xs text-slate-500 font-medium">{t.cards.smsSubtitle}</p>
             </div>
           </div>
 
@@ -117,7 +120,7 @@ export default function SMSCheckerCard({ onAnalyze }: SMSCheckerCardProps) {
             value={smsText}
             onChange={(e) => setSmsText(e.target.value)}
             rows={4}
-            placeholder="Paste your SMS message here..."
+            placeholder={t.cards.smsPlaceholder}
             className="w-full bg-slate-50/80 border border-slate-200 rounded-2xl p-3.5 text-xs text-slate-800 font-mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#5345ED] focus:bg-white transition-all resize-none"
           />
 
@@ -136,7 +139,7 @@ export default function SMSCheckerCard({ onAnalyze }: SMSCheckerCardProps) {
               className="text-[#5345ED] hover:bg-indigo-50 font-bold text-[11px] px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1 cursor-pointer shrink-0"
             >
               <Upload className="w-3 h-3" />
-              <span>Browse</span>
+              <span>{t.cards.smsUploadBtn}</span>
             </button>
             <input
               ref={fileInputRef}
@@ -161,7 +164,7 @@ export default function SMSCheckerCard({ onAnalyze }: SMSCheckerCardProps) {
             ) : (
               <>
                 <Sparkles className="w-4 h-4 text-indigo-200" />
-                <span>Analyze SMS</span>
+                <span>{t.cards.smsAnalyzeBtn}</span>
               </>
             )}
           </button>
@@ -188,7 +191,7 @@ export default function SMSCheckerCard({ onAnalyze }: SMSCheckerCardProps) {
                     <ShieldCheck className="w-4 h-4 text-emerald-600" />
                   )}
                   <span className={`font-bold text-xs ${isHighRisk ? 'text-red-700' : 'text-emerald-700'}`}>
-                    Risk Score: {analysis.riskScore}%
+                    {t.cards.riskScoreLabel} {analysis.riskScore}%
                   </span>
                 </div>
                 <span
@@ -221,7 +224,7 @@ export default function SMSCheckerCard({ onAnalyze }: SMSCheckerCardProps) {
 
             {/* Why this is risky */}
             <div className="space-y-1.5">
-              <h4 className="text-xs font-bold text-slate-800">Why this is risky?</h4>
+              <h4 className="text-xs font-bold text-slate-800">{t.cards.whyRiskyTitle}</h4>
               <ul className="space-y-1">
                 {analysis.reasons.map((reason, idx) => (
                   <li key={idx} className="flex items-start gap-1.5 text-[11px] text-slate-600 font-medium">
@@ -234,7 +237,7 @@ export default function SMSCheckerCard({ onAnalyze }: SMSCheckerCardProps) {
 
             {/* What should you do */}
             <div className="space-y-1.5">
-              <h4 className="text-xs font-bold text-slate-800">What should you do?</h4>
+              <h4 className="text-xs font-bold text-slate-800">{t.cards.whatToDoTitle}</h4>
               <div className="space-y-1">
                 {analysis.recommendedActions.map((action, idx) => (
                   <div key={idx} className="flex items-start gap-1.5 text-[11px] text-slate-700 font-medium">

@@ -18,12 +18,15 @@ import {
 import { INITIAL_CALL_DATA, ScamAnalysis } from '@/data/mockData';
 import { analyzeCall } from '@/lib/api';
 import { useToast } from '@/components/ui/Toast';
+import { getTranslation } from '@/lib/translations';
 
 interface CallAnalyzerCardProps {
   onAnalyze?: (result: ScamAnalysis) => void;
+  selectedLanguage?: string;
 }
 
-export default function CallAnalyzerCard({ onAnalyze }: CallAnalyzerCardProps) {
+export default function CallAnalyzerCard({ onAnalyze, selectedLanguage = 'en' }: CallAnalyzerCardProps) {
+  const t = getTranslation(selectedLanguage);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [fileName, setFileName] = useState(INITIAL_CALL_DATA.fileName);
@@ -77,8 +80,8 @@ export default function CallAnalyzerCard({ onAnalyze }: CallAnalyzerCardProps) {
               <Phone className="w-5 h-5 fill-white/20" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900">Call Analyzer</h2>
-              <p className="text-xs text-slate-500 font-medium">Upload call audio or speech transcript</p>
+              <h2 className="text-base font-bold text-slate-900">{t.cards.callTitle}</h2>
+              <p className="text-xs text-slate-500 font-medium">{t.cards.callSubtitle}</p>
             </div>
           </div>
 
@@ -150,7 +153,7 @@ export default function CallAnalyzerCard({ onAnalyze }: CallAnalyzerCardProps) {
             value={transcriptText}
             onChange={(e) => setTranscriptText(e.target.value)}
             rows={2}
-            placeholder="Paste speech transcript or audio notes..."
+            placeholder={t.cards.callPlaceholder}
             className="w-full bg-slate-50/80 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 font-sans leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#5345ED] focus:bg-white transition-all resize-none"
           />
 
@@ -168,7 +171,7 @@ export default function CallAnalyzerCard({ onAnalyze }: CallAnalyzerCardProps) {
             ) : (
               <>
                 <Sparkles className="w-4 h-4 text-indigo-200" />
-                <span>Analyze Call</span>
+                <span>{t.cards.callAnalyzeBtn}</span>
               </>
             )}
           </button>
@@ -195,7 +198,7 @@ export default function CallAnalyzerCard({ onAnalyze }: CallAnalyzerCardProps) {
                     <ShieldCheck className="w-4 h-4 text-emerald-600" />
                   )}
                   <span className={`font-bold text-xs ${isHighRisk ? 'text-red-700' : 'text-emerald-700'}`}>
-                    Risk Score: {analysis.riskScore}%
+                    {t.cards.riskScoreLabel} {analysis.riskScore}%
                   </span>
                 </div>
                 <span
@@ -228,7 +231,7 @@ export default function CallAnalyzerCard({ onAnalyze }: CallAnalyzerCardProps) {
 
             {/* Why this is risky */}
             <div className="space-y-1.5">
-              <h4 className="text-xs font-bold text-slate-800">Why this is risky?</h4>
+              <h4 className="text-xs font-bold text-slate-800">{t.cards.whyRiskyTitle}</h4>
               <p className="text-[11px] text-slate-600 font-medium leading-normal">
                 The caller is asking for OTP and KYC details and trying to create urgency.
               </p>
@@ -236,7 +239,7 @@ export default function CallAnalyzerCard({ onAnalyze }: CallAnalyzerCardProps) {
 
             {/* What should you do */}
             <div className="space-y-1.5">
-              <h4 className="text-xs font-bold text-slate-800">What should you do?</h4>
+              <h4 className="text-xs font-bold text-slate-800">{t.cards.whatToDoTitle}</h4>
               <div className="space-y-1">
                 {analysis.recommendedActions.map((action, idx) => (
                   <div key={idx} className="flex items-start gap-1.5 text-[11px] text-slate-700 font-medium">

@@ -4,6 +4,7 @@ import React from 'react';
 import { Globe, ShieldCheck, ChevronDown, User, Menu } from 'lucide-react';
 import { SUPPORTED_LANGUAGES } from '@/data/mockData';
 import { SignInButton, UserButton, useUser } from '@clerk/nextjs';
+import { getTranslation } from '@/lib/translations';
 
 interface TopNavProps {
   selectedLanguage: string;
@@ -18,6 +19,7 @@ export default function TopNav({
 }: TopNavProps) {
   const currentLangObj = SUPPORTED_LANGUAGES.find(l => l.code === selectedLanguage) || SUPPORTED_LANGUAGES[0];
   const { isSignedIn } = useUser();
+  const t = getTranslation(selectedLanguage);
 
   return (
     <header className="w-full glass-nav sticky top-0 z-20 px-4 sm:px-8 py-4 flex items-center justify-between gap-4">
@@ -35,10 +37,10 @@ export default function TopNav({
 
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-            Hello, User! <span className="animate-bounce">👋</span>
+            {t.topNav.greeting} <span className="animate-bounce">👋</span>
           </h1>
           <p className="text-xs sm:text-sm font-medium text-slate-500 mt-0.5 hidden sm:block">
-            We help you detect scams and stay safe in digital banking.
+            {t.topNav.subtitle}
           </p>
         </div>
       </div>
@@ -78,14 +80,10 @@ export default function TopNav({
           </div>
           <div>
             <div className="text-[11px] font-extrabold tracking-wide uppercase text-emerald-700">
-              AI Powered
+              {t.topNav.aiBadgeTitle}
             </div>
             <div className="text-[10px] font-medium text-emerald-600 space-x-1">
-              <span>Secure</span>
-              <span>•</span>
-              <span>Smart</span>
-              <span>•</span>
-              <span>Safe</span>
+              <span>{t.topNav.aiBadgeSub}</span>
             </div>
           </div>
         </div>
@@ -104,7 +102,7 @@ export default function TopNav({
             <SignInButton mode="modal">
               <button className="bg-[#5345ED] hover:bg-[#4335dc] text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-xs flex items-center gap-1.5 cursor-pointer">
                 <User className="w-3.5 h-3.5" />
-                <span>Sign In</span>
+                <span>{t.topNav.signIn}</span>
               </button>
             </SignInButton>
           )}

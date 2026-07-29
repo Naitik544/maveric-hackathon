@@ -15,12 +15,14 @@ import {
 } from 'lucide-react';
 import FullReportModal from './FullReportModal';
 import { ScamAnalysis } from '@/data/mockData';
+import { getTranslation } from '@/lib/translations';
 
 interface OverallResultCardProps {
   analysis?: ScamAnalysis;
   riskScore?: number;
   riskLevel?: 'High Risk' | 'Medium Risk' | 'Low Risk' | 'Safe';
   summary?: string;
+  selectedLanguage?: string;
   onReportClick?: () => void;
   onViewReportClick?: () => void;
 }
@@ -30,10 +32,12 @@ export default function OverallResultCard({
   riskScore = 93,
   riskLevel = 'High Risk',
   summary = 'The message/call you provided shows strong signs of fraud. Do not share any OTP, PIN or personal information.',
+  selectedLanguage = 'en',
   onReportClick,
   onViewReportClick,
 }: OverallResultCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const t = getTranslation(selectedLanguage);
 
   const currentScore = analysis ? analysis.riskScore : riskScore;
   const isScam = currentScore >= 75;
@@ -66,8 +70,8 @@ export default function OverallResultCard({
                 <ShieldCheck className="w-5 h-5 stroke-[2.5]" />
               </div>
               <div>
-                <h2 className="text-base font-bold text-slate-900">Overall AI Diagnosis</h2>
-                <p className="text-[11px] text-slate-400 font-medium">Real-time threat evaluation</p>
+                <h2 className="text-base font-bold text-slate-900">{t.dashboard.overallResultTitle}</h2>
+                <p className="text-[11px] text-slate-400 font-medium">{t.dashboard.overallResultSub}</p>
               </div>
             </div>
 
@@ -76,17 +80,17 @@ export default function OverallResultCard({
               <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg transition-all ${
                 isSafe ? 'bg-emerald-500 text-white shadow-xs' : 'text-slate-400'
               }`}>
-                Safe
+                {t.dashboard.safeLabel}
               </span>
               <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg transition-all ${
                 isSuspicious ? 'bg-amber-500 text-white shadow-xs' : 'text-slate-400'
               }`}>
-                Suspicious
+                {t.dashboard.suspiciousLabel}
               </span>
               <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg transition-all ${
                 isScam ? 'bg-red-500 text-white shadow-xs' : 'text-slate-400'
               }`}>
-                Scam
+                {t.dashboard.scamLabel}
               </span>
             </div>
           </div>
@@ -137,14 +141,14 @@ export default function OverallResultCard({
                 }`}
               >
                 {isScam
-                  ? 'This looks like a Scam!'
+                  ? t.dashboard.scamDetectedTitle
                   : isSuspicious
-                  ? 'Suspicious Content Detected!'
-                  : 'Looks Safe & Legitimate!'}
+                  ? t.dashboard.suspiciousDetectedTitle
+                  : t.dashboard.safeTitle}
               </h3>
 
               <div className="flex items-center justify-center sm:justify-start gap-2 text-xs font-bold text-slate-700">
-                <span>Risk Score:</span>
+                <span>{t.dashboard.riskScoreLabel}</span>
                 <span
                   className={`text-base font-black ${
                     isScam ? 'text-red-600' : isSuspicious ? 'text-amber-600' : 'text-emerald-600'
@@ -179,7 +183,7 @@ export default function OverallResultCard({
           >
             <div className="flex items-center gap-2 font-bold text-xs text-slate-900">
               <Lightbulb className="w-4 h-4 text-amber-600 shrink-0" />
-              <span>AI Summary & Threat Analysis</span>
+              <span>{t.dashboard.aiSummaryTitle}</span>
             </div>
             <p className="text-xs text-slate-700 font-medium leading-relaxed">
               {currentSummary}
@@ -192,7 +196,7 @@ export default function OverallResultCard({
               isSafe ? 'bg-emerald-50/80 border-emerald-200/80' : 'bg-emerald-50/80 border-emerald-200/80'
             }`}
           >
-            <h4 className="text-xs font-bold text-emerald-900">Recommended Action Steps</h4>
+            <h4 className="text-xs font-bold text-emerald-900">{t.dashboard.safeNextStepsTitle}</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {activeAnalysisObj.recommendedActions.map((step, idx) => (
                 <div key={idx} className="flex items-start gap-2 text-xs font-semibold text-emerald-800">
@@ -211,7 +215,7 @@ export default function OverallResultCard({
             className="flex-1 w-full bg-[#5345ED] hover:bg-[#4335dc] active:scale-[0.99] text-white text-xs font-bold py-3.5 px-4 rounded-xl transition-all shadow-md shadow-indigo-500/25 flex items-center justify-center gap-2 cursor-pointer"
           >
             <Flag className="w-4 h-4" />
-            <span>Report This Scam</span>
+            <span>{t.dashboard.reportScamBtn}</span>
           </button>
 
           <button
@@ -222,7 +226,7 @@ export default function OverallResultCard({
             className="flex-1 w-full bg-indigo-50 hover:bg-indigo-100/80 active:scale-[0.99] text-[#5345ED] text-xs font-bold py-3.5 px-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer border border-indigo-100"
           >
             <FileText className="w-4 h-4" />
-            <span>View Detailed Audit Report</span>
+            <span>{t.dashboard.viewReportBtn}</span>
           </button>
         </div>
       </div>

@@ -21,11 +21,14 @@ import HistoryTab from '@/components/views/HistoryTab';
 import SettingsTab from '@/components/views/SettingsTab';
 import { ScamAnalysis } from '@/data/mockData';
 import { ShieldCheck, Zap, Lock, Sparkles, Activity } from 'lucide-react';
+import { getTranslation } from '@/lib/translations';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<NavTab>('dashboard');
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  const t = getTranslation(selectedLanguage);
 
   // Active scam score state for Overall Result Card
   const [overallResult, setOverallResult] = useState<ScamAnalysis>({
@@ -78,29 +81,29 @@ export default function Home() {
                     <div className="space-y-2 max-w-2xl relative z-10">
                       <div className="inline-flex items-center gap-2 bg-indigo-100/80 border border-indigo-200 text-[#5345ED] text-[11px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
                         <Sparkles className="w-3.5 h-3.5" />
-                        <span>AI-Powered Financial Safety Assistant</span>
+                        <span>{t.dashboard.welcomeBadge}</span>
                       </div>
 
                       <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
-                        Hello User! <span className="inline-block animate-bounce">👋</span>
+                        {t.dashboard.welcomeTitle} <span className="inline-block animate-bounce">👋</span>
                       </h1>
 
                       <p className="text-xs md:text-sm text-slate-600 font-medium leading-relaxed">
-                        Protect yourself and your family from digital banking fraud across India. Paste any suspicious SMS, WhatsApp message, or upload call recordings below for instant AI scam analysis.
+                        {t.dashboard.welcomeDesc}
                       </p>
 
                       <div className="flex flex-wrap items-center gap-3 pt-2">
                         <div className="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 shadow-2xs">
                           <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                          <span>Instant AI Detection</span>
+                          <span>{t.dashboard.instantAi}</span>
                         </div>
                         <div className="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 shadow-2xs">
                           <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-                          <span>99.4% Fraud Precision</span>
+                          <span>{t.dashboard.precision}</span>
                         </div>
                         <div className="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 shadow-2xs">
                           <Lock className="w-3.5 h-3.5 text-[#5345ED]" />
-                          <span>UPI & Banking Protection</span>
+                          <span>{t.dashboard.upiProtection}</span>
                         </div>
                       </div>
                     </div>
@@ -119,23 +122,23 @@ export default function Home() {
                       <div>
                         <h2 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
                           <Activity className="w-5 h-5 text-[#5345ED]" />
-                          <span>AI Scam Detection Studio</span>
+                          <span>{t.dashboard.studioTitle}</span>
                         </h2>
                         <p className="text-xs text-slate-500 font-medium">
-                          Select an analyzer below to evaluate SMS messages, WhatsApp chats, or call recordings in real-time.
+                          {t.dashboard.studioDesc}
                         </p>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
                       {/* Step 1: SMS Checker */}
-                      <SMSCheckerCard onAnalyze={handleSubAnalysis} />
+                      <SMSCheckerCard onAnalyze={handleSubAnalysis} selectedLanguage={selectedLanguage} />
 
                       {/* Step 2: WhatsApp Checker */}
-                      <WhatsAppCheckerCard onAnalyze={handleSubAnalysis} />
+                      <WhatsAppCheckerCard onAnalyze={handleSubAnalysis} selectedLanguage={selectedLanguage} />
 
                       {/* Step 3: Call Analyzer */}
-                      <CallAnalyzerCard onAnalyze={handleSubAnalysis} />
+                      <CallAnalyzerCard onAnalyze={handleSubAnalysis} selectedLanguage={selectedLanguage} />
                     </div>
                   </div>
 
@@ -146,6 +149,7 @@ export default function Home() {
                       riskScore={overallResult.riskScore}
                       riskLevel={overallResult.riskLevel}
                       summary={overallResult.summary}
+                      selectedLanguage={selectedLanguage}
                       onReportClick={() => setActiveTab('report-scam')}
                       onViewReportClick={() => setActiveTab('history')}
                     />

@@ -15,6 +15,7 @@ import {
   X
 } from 'lucide-react';
 import { SUPPORTED_LANGUAGES } from '@/data/mockData';
+import { getTranslation } from '@/lib/translations';
 
 export type NavTab = 
   | 'dashboard'
@@ -35,17 +36,6 @@ interface SidebarProps {
   setIsMobileOpen?: (open: boolean) => void;
 }
 
-export const NAV_ITEMS = [
-  { id: 'dashboard' as NavTab, label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'sms-checker' as NavTab, label: 'SMS Checker', icon: MessageSquare },
-  { id: 'whatsapp-checker' as NavTab, label: 'WhatsApp Checker', icon: MessageCircle },
-  { id: 'call-analyzer' as NavTab, label: 'Call Analyzer', icon: Phone },
-  { id: 'safety-tips' as NavTab, label: 'Safety Tips', icon: ShieldCheck },
-  { id: 'report-scam' as NavTab, label: 'Report Scam', icon: Flag },
-  { id: 'history' as NavTab, label: 'History', icon: History },
-  { id: 'settings' as NavTab, label: 'Settings', icon: Settings },
-];
-
 export default function Sidebar({
   activeTab,
   setActiveTab,
@@ -54,6 +44,19 @@ export default function Sidebar({
   isMobileOpen = false,
   setIsMobileOpen
 }: SidebarProps) {
+  const t = getTranslation(selectedLanguage);
+
+  const NAV_ITEMS = [
+    { id: 'dashboard' as NavTab, label: t.sidebar.dashboard, icon: LayoutDashboard },
+    { id: 'sms-checker' as NavTab, label: t.sidebar.smsChecker, icon: MessageSquare },
+    { id: 'whatsapp-checker' as NavTab, label: t.sidebar.whatsappChecker, icon: MessageCircle },
+    { id: 'call-analyzer' as NavTab, label: t.sidebar.callAnalyzer, icon: Phone },
+    { id: 'safety-tips' as NavTab, label: t.sidebar.safetyTips, icon: ShieldCheck },
+    { id: 'report-scam' as NavTab, label: t.sidebar.reportScam, icon: Flag },
+    { id: 'history' as NavTab, label: t.sidebar.history, icon: History },
+    { id: 'settings' as NavTab, label: t.sidebar.settings, icon: Settings },
+  ];
+
   const handleNavClick = (tab: NavTab) => {
     setActiveTab(tab);
     if (setIsMobileOpen) setIsMobileOpen(false);
@@ -132,7 +135,7 @@ export default function Sidebar({
           {/* Language selector */}
           <div>
             <label className="block text-[11px] font-semibold text-slate-400 mb-1.5 px-1 uppercase tracking-wider">
-              Language
+              {t.sidebar.languageLabel}
             </label>
             <div className="relative">
               <select
@@ -159,10 +162,10 @@ export default function Sidebar({
 
               <div className="space-y-0.5">
                 <h4 className="text-xs font-bold text-slate-800 tracking-tight">
-                  Be Safe. Be Aware.
+                  {t.sidebar.seniorBannerTitle}
                 </h4>
                 <p className="text-[11px] font-semibold text-[#5345ED]">
-                  Stay informed, Stay protected.
+                  {t.sidebar.seniorBannerSubtitle}
                 </p>
               </div>
             </div>

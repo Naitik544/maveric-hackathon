@@ -17,12 +17,15 @@ import {
 import { INITIAL_WHATSAPP_DATA, ScamAnalysis } from '@/data/mockData';
 import { analyzeWhatsApp } from '@/lib/api';
 import { useToast } from '@/components/ui/Toast';
+import { getTranslation } from '@/lib/translations';
 
 interface WhatsAppCheckerCardProps {
   onAnalyze?: (result: ScamAnalysis) => void;
+  selectedLanguage?: string;
 }
 
-export default function WhatsAppCheckerCard({ onAnalyze }: WhatsAppCheckerCardProps) {
+export default function WhatsAppCheckerCard({ onAnalyze, selectedLanguage = 'en' }: WhatsAppCheckerCardProps) {
+  const t = getTranslation(selectedLanguage);
   const [waText, setWaText] = useState(INITIAL_WHATSAPP_DATA.sampleMessage);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -92,8 +95,8 @@ export default function WhatsAppCheckerCard({ onAnalyze }: WhatsAppCheckerCardPr
               <MessageCircle className="w-5 h-5 fill-white/20" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900">WhatsApp Checker</h2>
-              <p className="text-xs text-slate-500 font-medium">Paste text or upload chat screenshot</p>
+              <h2 className="text-base font-bold text-slate-900">{t.cards.whatsappTitle}</h2>
+              <p className="text-xs text-slate-500 font-medium">{t.cards.whatsappSubtitle}</p>
             </div>
           </div>
 
@@ -115,19 +118,19 @@ export default function WhatsAppCheckerCard({ onAnalyze }: WhatsAppCheckerCardPr
           </div>
         </div>
 
-        {/* Chat Input & Upload */}
+        {/* Fake WhatsApp Message Preview Container */}
         <div className="space-y-2.5">
-          <div className="bg-emerald-50/70 border border-emerald-200/60 rounded-2xl p-3.5 relative">
+          <div className="bg-[#EFEAE2] border border-emerald-200/80 rounded-2xl p-3.5 space-y-2 relative shadow-inner">
             <textarea
               value={waText}
               onChange={(e) => setWaText(e.target.value)}
               rows={4}
-              placeholder="Paste WhatsApp text..."
-              className="w-full bg-transparent text-xs text-slate-900 font-sans leading-relaxed focus:outline-none resize-none"
+              placeholder={t.cards.whatsappPlaceholder}
+              className="w-full bg-white/90 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 font-sans leading-relaxed focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all resize-none shadow-xs"
             />
-            <div className="flex items-center justify-end gap-1 text-[10px] text-emerald-700 font-semibold mt-1">
+            <div className="flex items-center justify-end gap-1 text-[10px] text-slate-400 font-medium">
               <span>{INITIAL_WHATSAPP_DATA.timestamp}</span>
-              <CheckCheck className="w-3.5 h-3.5 text-emerald-600 stroke-[2.5]" />
+              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
             </div>
           </div>
 
@@ -146,7 +149,7 @@ export default function WhatsAppCheckerCard({ onAnalyze }: WhatsAppCheckerCardPr
               className="text-emerald-700 hover:bg-emerald-50 font-bold text-[11px] px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1 cursor-pointer shrink-0"
             >
               <Upload className="w-3 h-3" />
-              <span>Browse</span>
+              <span>{t.cards.whatsappUploadBtn}</span>
             </button>
             <input
               ref={fileInputRef}
@@ -171,7 +174,7 @@ export default function WhatsAppCheckerCard({ onAnalyze }: WhatsAppCheckerCardPr
             ) : (
               <>
                 <Sparkles className="w-4 h-4 text-indigo-200" />
-                <span>Analyze Message</span>
+                <span>{t.cards.whatsappAnalyzeBtn}</span>
               </>
             )}
           </button>
