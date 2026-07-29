@@ -23,6 +23,7 @@ import ReportScamTab from '@/components/views/ReportScamTab';
 import HistoryTab from '@/components/views/HistoryTab';
 import SettingsTab from '@/components/views/SettingsTab';
 import AdminPanelTab from '@/components/views/AdminPanelTab';
+import FeedbackTab from '@/components/views/FeedbackTab';
 import PreloaderScreen from '@/components/ui/PreloaderScreen';
 import OnboardingTutorialModal from '@/components/dashboard/OnboardingTutorialModal';
 import { ScamAnalysis } from '@/data/mockData';
@@ -233,6 +234,7 @@ export default function Home() {
                   setSelectedLanguage={setSelectedLanguage}
                 />
               )}
+              {activeTab === 'feedback' && <FeedbackTab />}
               {activeTab === 'admin' && <AdminPanelTab />}
             </motion.div>
           </AnimatePresence>

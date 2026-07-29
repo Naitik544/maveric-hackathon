@@ -18,6 +18,7 @@ import {
   ShieldAlert,
   FileText
 } from 'lucide-react';
+import CyberSafetyQuiz from '@/components/dashboard/CyberSafetyQuiz';
 
 interface AccordionItem {
   id: string;
@@ -174,6 +175,9 @@ export default function SafetyTipsTab() {
           Master essential safety protocols to protect your bank balance, UPI, credit cards, and identity.
         </p>
       </div>
+
+      {/* 🌟 Interactive 60-Second Cyber Safety Quiz */}
+      <CyberSafetyQuiz />
 
       {/* Cyber Crime Helpline Hero Banner */}
       <div className="bg-gradient-to-r from-[#5345ED] via-indigo-600 to-indigo-800 rounded-3xl p-6 md:p-8 text-white flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-lg shadow-indigo-500/20 relative overflow-hidden">

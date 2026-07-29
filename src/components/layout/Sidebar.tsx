@@ -12,7 +12,8 @@ import {
   Settings,
   Shield,
   ChevronDown,
-  X
+  X,
+  Star
 } from 'lucide-react';
 import { SUPPORTED_LANGUAGES } from '@/data/mockData';
 import { getTranslation } from '@/lib/translations';
@@ -26,6 +27,7 @@ export type NavTab =
   | 'report-scam'
   | 'history'
   | 'settings'
+  | 'feedback'
   | 'admin';
 
 interface SidebarProps {
@@ -55,6 +57,7 @@ export default function Sidebar({
     { id: 'safety-tips' as NavTab, label: t.sidebar.safetyTips, icon: ShieldCheck },
     { id: 'report-scam' as NavTab, label: t.sidebar.reportScam, icon: Flag },
     { id: 'history' as NavTab, label: t.sidebar.history, icon: History },
+    { id: 'feedback' as NavTab, label: 'User Feedback & Reviews', icon: Star },
     { id: 'settings' as NavTab, label: t.sidebar.settings, icon: Settings },
     { id: 'admin' as NavTab, label: 'Admin Command Center', icon: Shield },
   ];
@@ -87,13 +90,17 @@ export default function Sidebar({
               onClick={() => handleNavClick('dashboard')} 
               className="flex items-center gap-3 cursor-pointer group px-2 py-1"
             >
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#5345ED] to-[#7367f0] flex items-center justify-center text-white shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-200">
+              {/* Brand Shield & Sprout Crest Icon */}
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#1B365D] via-[#5345ED] to-emerald-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-200 relative overflow-hidden">
                 <Shield className="w-6 h-6 fill-white/20 stroke-[2.5]" />
+                <span className="absolute text-[8px] font-black text-emerald-300 bottom-0.5">RURAL</span>
               </div>
               <div>
-                <h1 className="font-bold text-xl text-slate-900 tracking-tight">SafeBank AI</h1>
-                <p className="text-[11px] font-medium text-slate-500 tracking-wide">
-                  AI Financial Safety Assistant
+                <h1 className="font-bold text-xl text-slate-900 tracking-tight flex items-center gap-1.5">
+                  <span>SafeBank AI</span>
+                </h1>
+                <p className="text-[10px] font-extrabold text-emerald-700 tracking-wider uppercase">
+                  RURAL TRUST • FINANCIAL GUARD
                 </p>
               </div>
             </div>
