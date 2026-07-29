@@ -19,6 +19,7 @@ import {
   History,
   Copy
 } from 'lucide-react';
+import { analyzeSMS } from '@/lib/api';
 
 export interface SMSAnalysisResult {
   riskScore: number;
@@ -26,6 +27,7 @@ export interface SMSAnalysisResult {
   scamCategory: string;
   confidence: number;
   reasons: string[];
+  recommendedActions?: string[];
   safeSuggestions: string[];
   summary: string;
 }
@@ -110,79 +112,47 @@ export default function SMSCheckerTab() {
   ]);
 
   // Mock API Call Simulation
-  const mockApiAnalyzeSMS = (text: string): Promise<SMSAnalysisResult> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const lower = text.toLowerCase();
-        const isKyc = lower.includes('kyc') || lower.includes('block') || lower.includes('sbi') || lower.includes('hdfc');
-        const isBill = lower.includes('electricity') || lower.includes('disconnect') || lower.includes('bill');
-        const isJob = lower.includes('job') || lower.includes('telegram') || lower.includes('earn') || lower.includes('youtube');
-        const isReward = lower.includes('reward') || lower.includes('points') || lower.includes('tax') || lower.includes('refund');
-
-        if (isKyc || isBill || isJob || isReward || lower.includes('http') || lower.includes('link')) {
-          let cat = 'Bank Phishing';
-          if (isBill) cat = 'Electricity Bill Fraud';
-          if (isJob) cat = 'Part-Time Job Fraud';
-          if (isReward) cat = 'Reward Points / Tax Scam';
-
-          resolve({
-            riskScore: Math.floor(88 + Math.random() * 10),
-            riskLevel: 'High Risk',
-            scamCategory: cat,
-            confidence: 99.4,
-            reasons: [
-              'Contains unverified external link or sender header',
-              'Creates urgency demanding immediate action',
-              'Requests sensitive banking or personal action'
-            ],
-            safeSuggestions: [
-              'Do not click on the link',
-              'Never share OTP or PIN with anyone',
-              'Verify directly with official bank customer service',
-              'Report to 1930 Cyber Crime Helpline'
-            ],
-            summary: `High risk detected. This SMS exhibits standard flags for ${cat}.`
-          });
-        } else {
-          resolve({
-            riskScore: 8,
-            riskLevel: 'Safe',
-            scamCategory: 'Legitimate Message',
-            confidence: 98.2,
-            reasons: [
-              'No suspicious URLs or shortened links',
-              'No coercive financial demands',
-              'Standard informational content'
-            ],
-            safeSuggestions: [
-              'Normal caution applies',
-              'No immediate threat detected'
-            ],
-            summary: 'The message appears safe with no malicious indicators.'
-          });
-        }
-      }, 700);
-    });
-  };
-
   const handleAnalyze = async () => {
     if (!smsText.trim()) return;
     setIsAnalyzing(true);
-    const result = await mockApiAnalyzeSMS(smsText);
-    setAnalysis(result);
-    setIsAnalyzing(false);
 
-    // Add to recent history log
-    setRecentAnalyses(prev => [
-      {
-        id: `rec-${Date.now()}`,
-        text: smsText.slice(0, 50) + '...',
-        category: result.scamCategory,
-        score: result.riskScore,
-        time: 'Just now'
-      },
-      ...prev.slice(0, 4)
-    ]);
+    try {
+      const result = await analyzeSMS(smsText);
+      setAnalysis({
+        riskScore: result.riskScore,
+        riskLevel: result.riskLevel,
+        scamCategory: (result as any).scamCategory || 'SMS Phishing Analysis',
+        confidence: (result as any).confidence || 99.4,
+        reasons: result.reasons,
+        recommendedActions: result.recommendedActions,
+        safeSuggestions: result.recommendedActions,
+        summary: result.summary
+      });
+
+      setRecentAnalyses(prev => [
+        {
+          id: `rec-${Date.now()}`,
+          text: smsText.slice(0, 50) + '...',
+          category: (result as any).scamCategory || 'SMS Phishing Analysis',
+          score: result.riskScore,
+          time: 'Just now'
+        },
+        ...prev.slice(0, 4)
+      ]);
+    } catch (error) {
+      console.error('[SMSCheckerTab] Backend analysis failed', error);
+      setAnalysis({
+        riskScore: 0,
+        riskLevel: 'Safe',
+        scamCategory: 'Analysis Failed',
+        confidence: 0,
+        reasons: ['Unable to connect to backend API.'],
+        safeSuggestions: ['Please try again later or check backend connectivity.'],
+        summary: 'Backend analysis unavailable.'
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const handlePasteSMS = async () => {
