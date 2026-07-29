@@ -22,9 +22,10 @@ import { getTranslation } from '@/lib/translations';
 interface WhatsAppCheckerCardProps {
   onAnalyze?: (result: ScamAnalysis) => void;
   selectedLanguage?: string;
+  onCardHeaderClick?: () => void;
 }
 
-export default function WhatsAppCheckerCard({ onAnalyze, selectedLanguage = 'en' }: WhatsAppCheckerCardProps) {
+export default function WhatsAppCheckerCard({ onAnalyze, selectedLanguage = 'en', onCardHeaderClick }: WhatsAppCheckerCardProps) {
   const t = getTranslation(selectedLanguage);
   const [waText, setWaText] = useState(INITIAL_WHATSAPP_DATA.sampleMessage);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -38,7 +39,7 @@ export default function WhatsAppCheckerCard({ onAnalyze, selectedLanguage = 'en'
     if (!waText.trim()) return;
     setIsAnalyzing(true);
     setErrorMessage(null);
-    showToast('info', 'Analyzing WhatsApp Message', 'Scanning text with Gemini AI threat engine...');
+    showToast('info', 'Analyzing WhatsApp Message', 'Connecting to SafeBank AI Gemini API...');
 
     try {
       const result = await analyzeWhatsApp(waText);
@@ -46,13 +47,13 @@ export default function WhatsAppCheckerCard({ onAnalyze, selectedLanguage = 'en'
       setIsAnalyzing(false);
       showToast(
         result.riskScore >= 70 ? 'warning' : 'success',
-        result.riskScore >= 70 ? 'High Risk Scam Detected!' : 'WhatsApp Message Appears Safe',
+        result.riskScore >= 70 ? 'WhatsApp Scam / Fraud Detected!' : 'Message Appears Safe',
         `Risk Score: ${result.riskScore}%`
       );
       if (onAnalyze) onAnalyze(result);
     } catch (err: any) {
       setIsAnalyzing(false);
-      setErrorMessage('Failed to analyze WhatsApp message.');
+      setErrorMessage('Failed to analyze WhatsApp message. Please try again.');
       showToast('error', 'Analysis Error', 'Unable to complete WhatsApp scan.');
     }
   };
@@ -70,15 +71,12 @@ export default function WhatsAppCheckerCard({ onAnalyze, selectedLanguage = 'en'
     const file = e.target.files?.[0];
     if (file) {
       setUploadedFile(file.name);
-      // Simulate reading screenshot text or file content
-      if (file.type.startsWith('text')) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const content = event.target?.result as string;
-          if (content) setWaText(content.slice(0, 300));
-        };
-        reader.readAsText(file);
-      }
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const content = event.target?.result as string;
+        if (content) setWaText(content.slice(0, 300));
+      };
+      reader.readAsText(file);
     }
   };
 
@@ -90,12 +88,15 @@ export default function WhatsAppCheckerCard({ onAnalyze, selectedLanguage = 'en'
       <div className="space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
+          <div
+            onClick={onCardHeaderClick}
+            className={`flex items-center gap-3 ${onCardHeaderClick ? 'cursor-pointer group' : ''}`}
+          >
+            <div className="w-10 h-10 rounded-2xl bg-emerald-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform">
               <MessageCircle className="w-5 h-5 fill-white/20" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900">{t.cards.whatsappTitle}</h2>
+              <h2 className="text-base font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">{t.cards.whatsappTitle}</h2>
               <p className="text-xs text-slate-500 font-medium">{t.cards.whatsappSubtitle}</p>
             </div>
           </div>

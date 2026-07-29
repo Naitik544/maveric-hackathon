@@ -99,13 +99,25 @@ export default function Home() {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
                       {/* Step 1: SMS Checker */}
-                      <SMSCheckerCard onAnalyze={handleSubAnalysis} selectedLanguage={selectedLanguage} />
+                      <SMSCheckerCard
+                        onAnalyze={handleSubAnalysis}
+                        selectedLanguage={selectedLanguage}
+                        onCardHeaderClick={() => setActiveTab('sms-checker')}
+                      />
 
                       {/* Step 2: WhatsApp Checker */}
-                      <WhatsAppCheckerCard onAnalyze={handleSubAnalysis} selectedLanguage={selectedLanguage} />
+                      <WhatsAppCheckerCard
+                        onAnalyze={handleSubAnalysis}
+                        selectedLanguage={selectedLanguage}
+                        onCardHeaderClick={() => setActiveTab('whatsapp-checker')}
+                      />
 
                       {/* Step 3: Call Analyzer */}
-                      <CallAnalyzerCard onAnalyze={handleSubAnalysis} selectedLanguage={selectedLanguage} />
+                      <CallAnalyzerCard
+                        onAnalyze={handleSubAnalysis}
+                        selectedLanguage={selectedLanguage}
+                        onCardHeaderClick={() => setActiveTab('call-analyzer')}
+                      />
                     </div>
                   </div>
 

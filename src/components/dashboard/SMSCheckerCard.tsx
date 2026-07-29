@@ -21,9 +21,10 @@ import { getTranslation } from '@/lib/translations';
 interface SMSCheckerCardProps {
   onAnalyze?: (result: ScamAnalysis) => void;
   selectedLanguage?: string;
+  onCardHeaderClick?: () => void;
 }
 
-export default function SMSCheckerCard({ onAnalyze, selectedLanguage = 'en' }: SMSCheckerCardProps) {
+export default function SMSCheckerCard({ onAnalyze, selectedLanguage = 'en', onCardHeaderClick }: SMSCheckerCardProps) {
   const t = getTranslation(selectedLanguage);
   const [smsText, setSmsText] = useState(INITIAL_SMS_DATA.sampleText);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -86,12 +87,15 @@ export default function SMSCheckerCard({ onAnalyze, selectedLanguage = 'en' }: S
       <div className="space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#5345ED] flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+          <div
+            onClick={onCardHeaderClick}
+            className={`flex items-center gap-3 ${onCardHeaderClick ? 'cursor-pointer group' : ''}`}
+          >
+            <div className="w-10 h-10 rounded-2xl bg-[#5345ED] flex items-center justify-center text-white shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
               <MessageSquare className="w-5 h-5 fill-white/20" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900">{t.cards.smsTitle}</h2>
+              <h2 className="text-base font-bold text-slate-900 group-hover:text-[#5345ED] transition-colors">{t.cards.smsTitle}</h2>
               <p className="text-xs text-slate-500 font-medium">{t.cards.smsSubtitle}</p>
             </div>
           </div>

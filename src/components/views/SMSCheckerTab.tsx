@@ -248,41 +248,7 @@ export default function SMSCheckerTab() {
             </button>
           </div>
 
-          {/* Example SMS List Section */}
-          <div className="bg-white rounded-3xl border border-slate-200/80 p-6 space-y-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                <Zap className="w-4 h-4 text-amber-500" />
-                <span>Try Common Indian SMS Scam Examples</span>
-              </h3>
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {PRESET_EXAMPLE_SMS.map((example) => (
-                <button
-                  key={example.id}
-                  onClick={() => {
-                    setSmsText(example.text);
-                    handleAnalyze();
-                  }}
-                  className="text-left bg-slate-50/80 hover:bg-indigo-50/50 border border-slate-200 hover:border-indigo-300 rounded-2xl p-3.5 space-y-1.5 transition-all group cursor-pointer"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-extrabold uppercase bg-indigo-100 text-[#5345ED] px-2 py-0.5 rounded-md">
-                      {example.category}
-                    </span>
-                    <Copy className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#5345ED]" />
-                  </div>
-                  <h4 className="text-xs font-bold text-slate-800 group-hover:text-[#5345ED]">
-                    {example.title}
-                  </h4>
-                  <p className="text-[11px] font-mono text-slate-500 line-clamp-2 leading-tight">
-                    {example.text}
-                  </p>
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
 
         {/* Right Column: Result Card & Recent Analyses */}

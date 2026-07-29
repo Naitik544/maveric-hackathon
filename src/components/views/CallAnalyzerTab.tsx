@@ -505,37 +505,7 @@ export default function CallAnalyzerTab() {
             </button>
           </div>
 
-          {/* Sample Call Recordings List */}
-          <div className="bg-white rounded-3xl border border-slate-200/80 p-6 space-y-4 shadow-sm">
-            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-              <FileAudio className="w-4 h-4 text-[#5345ED]" />
-              <span>Try Preset Call Audio Scenarios</span>
-            </h3>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {PRESET_SAMPLE_CALLS.map((sample) => (
-                <button
-                  key={sample.id}
-                  onClick={() => {
-                    setFileName(sample.fileName);
-                    setDuration(sample.duration);
-                    setTranscript(sample.transcript);
-                  }}
-                  className="text-left bg-slate-50 hover:bg-indigo-50/50 border border-slate-200 hover:border-indigo-300 rounded-2xl p-3.5 space-y-1.5 transition-all group cursor-pointer"
-                >
-                  <span className="text-[10px] font-extrabold uppercase bg-indigo-100 text-[#5345ED] px-2 py-0.5 rounded-md">
-                    {sample.scamType}
-                  </span>
-                  <h4 className="text-xs font-bold text-slate-800 group-hover:text-[#5345ED]">
-                    {sample.title}
-                  </h4>
-                  <span className="text-[10px] text-slate-400 font-mono block">
-                    Duration: {sample.duration}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
 
         {/* Right Column: Result Card & Suspicious Highlight Panel */}

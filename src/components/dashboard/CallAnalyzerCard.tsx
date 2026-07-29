@@ -23,9 +23,10 @@ import { getTranslation } from '@/lib/translations';
 interface CallAnalyzerCardProps {
   onAnalyze?: (result: ScamAnalysis) => void;
   selectedLanguage?: string;
+  onCardHeaderClick?: () => void;
 }
 
-export default function CallAnalyzerCard({ onAnalyze, selectedLanguage = 'en' }: CallAnalyzerCardProps) {
+export default function CallAnalyzerCard({ onAnalyze, selectedLanguage = 'en', onCardHeaderClick }: CallAnalyzerCardProps) {
   const t = getTranslation(selectedLanguage);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -42,7 +43,7 @@ export default function CallAnalyzerCard({ onAnalyze, selectedLanguage = 'en' }:
   const handleAnalyze = async () => {
     if (!transcriptText.trim()) return;
     setIsAnalyzing(true);
-    showToast('info', 'Analyzing Call Audio', 'Scanning call speech transcript with Gemini AI...');
+    showToast('info', 'Analyzing Call Audio', 'Connecting to SafeBank AI Gemini API...');
 
     try {
       const result = await analyzeCall(transcriptText);
@@ -50,7 +51,7 @@ export default function CallAnalyzerCard({ onAnalyze, selectedLanguage = 'en' }:
       setIsAnalyzing(false);
       showToast(
         result.riskScore >= 70 ? 'warning' : 'success',
-        result.riskScore >= 70 ? 'Voice Fraud / Vishing Call Detected!' : 'Call Audio Appears Safe',
+        result.riskScore >= 70 ? 'Voice Vishing Scam Detected!' : 'Call Appears Safe',
         `Risk Score: ${result.riskScore}%`
       );
       if (onAnalyze) onAnalyze(result);
@@ -64,6 +65,8 @@ export default function CallAnalyzerCard({ onAnalyze, selectedLanguage = 'en' }:
     const file = e.target.files?.[0];
     if (file) {
       setFileName(file.name);
+      setTranscriptText(`Audio file "${file.name}" loaded: "Caller posing as bank official requesting OTP verification to unblock debit card."`);
+      showToast('success', 'Audio File Loaded', `${file.name} ready for analysis.`);
     }
   };
 
@@ -75,12 +78,15 @@ export default function CallAnalyzerCard({ onAnalyze, selectedLanguage = 'en' }:
       <div className="space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#5345ED] flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+          <div
+            onClick={onCardHeaderClick}
+            className={`flex items-center gap-3 ${onCardHeaderClick ? 'cursor-pointer group' : ''}`}
+          >
+            <div className="w-10 h-10 rounded-2xl bg-[#5345ED] flex items-center justify-center text-white shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
               <Phone className="w-5 h-5 fill-white/20" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900">{t.cards.callTitle}</h2>
+              <h2 className="text-base font-bold text-slate-900 group-hover:text-[#5345ED] transition-colors">{t.cards.callTitle}</h2>
               <p className="text-xs text-slate-500 font-medium">{t.cards.callSubtitle}</p>
             </div>
           </div>
