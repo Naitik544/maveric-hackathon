@@ -26,7 +26,7 @@ import AdminPanelTab from '@/components/views/AdminPanelTab';
 import PreloaderScreen from '@/components/ui/PreloaderScreen';
 import OnboardingTutorialModal from '@/components/dashboard/OnboardingTutorialModal';
 import { ScamAnalysis } from '@/data/mockData';
-import { ShieldCheck, Zap, Lock, Sparkles, Activity } from 'lucide-react';
+import { ShieldCheck, Zap, Lock, Sparkles, Activity, Flag } from 'lucide-react';
 import { getTranslation } from '@/lib/translations';
 
 export default function Home() {
@@ -136,7 +136,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* 3. Live Overall AI Result Panel (Prominent Wide Section) */}
+                  {/* 3. Live Overall AI Result Panel & Instant UPI Shield */}
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                     <div className="lg:col-span-7">
                       <OverallResultCard
@@ -154,24 +154,65 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* 4. Interactive Senior Citizen Cyber Safety Challenge Quiz */}
-                  <CyberSafetyQuiz selectedLanguage={selectedLanguage} />
-
-                  {/* 5. Real-time Dashboard Analytics Cards & Threat Distribution */}
-                  <DashboardAnalytics />
-
-                  {/* 5. Lower Section: Stay Safe Tips & Recent History */}
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                    <div className="lg:col-span-5">
-                      <StaySafeTips />
+                  {/* 4. Sleek Quick Navigation Feature Cards (Replaces Long Scroll) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                    <div
+                      onClick={() => setActiveTab('safety-tips')}
+                      className="bg-white rounded-3xl border border-slate-200/80 p-5 space-y-2 hover:border-[#5345ED] transition-all cursor-pointer group shadow-xs"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-extrabold uppercase bg-indigo-50 text-[#5345ED] px-2.5 py-0.5 rounded-full">
+                          Safety & Quiz
+                        </span>
+                        <ShieldCheck className="w-5 h-5 text-[#5345ED] group-hover:scale-110 transition-transform" />
+                      </div>
+                      <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#5345ED] transition-colors">
+                        60-Sec Cyber Quiz & Safety Tips →
+                      </h3>
+                      <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                        Earn your Guardian Badge & learn banking fraud prevention rules.
+                      </p>
                     </div>
-                    <div className="lg:col-span-7">
-                      <RecentHistory onViewAllClick={() => setActiveTab('history')} />
+
+                    <div
+                      onClick={() => setActiveTab('history')}
+                      className="bg-white rounded-3xl border border-slate-200/80 p-5 space-y-2 hover:border-emerald-500 transition-all cursor-pointer group shadow-xs"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-extrabold uppercase bg-emerald-50 text-emerald-600 px-2.5 py-0.5 rounded-full">
+                          Analytics
+                        </span>
+                        <Activity className="w-5 h-5 text-emerald-600 group-hover:scale-110 transition-transform" />
+                      </div>
+                      <h3 className="text-sm font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">
+                        Threat Analytics & Scan History →
+                      </h3>
+                      <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                        View real-time threat distribution across India & previous scans.
+                      </p>
+                    </div>
+
+                    <div
+                      onClick={() => setActiveTab('report-scam')}
+                      className="bg-white rounded-3xl border border-slate-200/80 p-5 space-y-2 hover:border-red-500 transition-all cursor-pointer group shadow-xs"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-extrabold uppercase bg-red-50 text-red-600 px-2.5 py-0.5 rounded-full">
+                          Helpline 1930
+                        </span>
+                        <Flag className="w-5 h-5 text-red-600 group-hover:scale-110 transition-transform" />
+                      </div>
+                      <h3 className="text-sm font-bold text-slate-900 group-hover:text-red-600 transition-colors">
+                        Report Cyber Scam to Police →
+                      </h3>
+                      <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                        Submit incident report & connect with 1930 Cyber Crime Cell.
+                      </p>
                     </div>
                   </div>
 
-                  {/* Footer */}
-                  <footer className="pt-8 border-t border-slate-200/60 flex flex-col sm:flex-row items-center justify-between text-xs font-semibold text-slate-400 gap-4 pb-4">
+                  {/* Compact Footer */}
+                  <footer className="pt-6 border-t border-slate-200/60 flex flex-col sm:flex-row items-center justify-between text-xs font-semibold text-slate-400 gap-4 pb-4">
                     <p>© 2026 SafeBank AI. All rights reserved.</p>
                     <p className="flex items-center gap-1.5">
                       Made with <span className="text-red-500">❤️</span> for a safer India
