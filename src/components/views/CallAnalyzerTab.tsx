@@ -90,9 +90,15 @@ export default function CallAnalyzerTab() {
   const [duration, setDuration] = useState(PRESET_SAMPLE_CALLS[0].duration);
   const [transcript, setTranscript] = useState(PRESET_SAMPLE_CALLS[0].transcript);
   
+  // Real Audio Player & MediaRecorder State
+  const [audioSrc, setAudioSrc] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
+
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
   const recognitionRef = useRef<any>(null);
   
@@ -120,71 +126,124 @@ export default function CallAnalyzerTab() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Live Browser Speech Recognition & Microphone Listener
-  const toggleRecording = () => {
+  // Play / Pause Audio Player Toggle
+  const togglePlayAudio = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        audioRef.current.play().then(() => {
+          setIsPlaying(true);
+        }).catch(err => {
+          console.warn('[CallAnalyzer] Audio play error', err);
+          // Fallback toggle for preset simulations
+          setIsPlaying(true);
+          setTimeout(() => setIsPlaying(false), 3000);
+        });
+      }
+    } else {
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  // Real Microphone Recording & Speech Recognition
+  const toggleRecording = async () => {
     if (isRecording) {
-      // Stop Recording
+      // STOP RECORDING
       setIsRecording(false);
       if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+      
+      // Stop MediaRecorder
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        mediaRecorderRef.current.stop();
+      }
+
+      // Stop SpeechRecognition
       if (recognitionRef.current) {
         try { recognitionRef.current.stop(); } catch (e) {}
       }
+
       setFileName('recorded_live_speech.wav');
       setDuration(`00:${recordingSeconds < 10 ? '0' + recordingSeconds : recordingSeconds}`);
-      showToast('success', 'Recording Stopped', 'Spoken transcript captured successfully.');
+      showToast('success', 'Recording Stopped', 'Live voice captured and ready to play/analyze.');
     } else {
-      // Start Live Microphone Recording
-      setIsRecording(true);
-      setRecordingSeconds(0);
-      setTranscript('');
-      setFileName('recording_live_audio.wav');
-      showToast('info', 'Listening to Microphone...', 'Speak into your mic to transcribe live voice.');
-
-      recordingTimerRef.current = setInterval(() => {
-        setRecordingSeconds(prev => prev + 1);
-      }, 1000);
-
-      // Web Speech API Listener
-      if (typeof window !== 'undefined') {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (SpeechRecognition) {
-          try {
-            const recognition = new SpeechRecognition();
-            recognition.continuous = true;
-            recognition.interimResults = true;
-            recognition.lang = 'en-US';
-
-            recognition.onresult = (event: any) => {
-              let finalTranscript = '';
-              let interimTranscript = '';
-
-              for (let i = 0; i < event.results.length; i++) {
-                const chunk = event.results[i][0].transcript;
-                if (event.results[i].isFinal) {
-                  finalTranscript += chunk + ' ';
-                } else {
-                  interimTranscript += chunk;
-                }
-              }
-
-              const cleanTranscript = (finalTranscript + interimTranscript).trim();
-              if (cleanTranscript) {
-                setTranscript(cleanTranscript);
-              }
-            };
-
-            recognition.onerror = (event: any) => {
-              console.warn('[CallAnalyzer] Speech recognition error', event.error);
-            };
-
-            recognition.start();
-            recognitionRef.current = recognition;
-          } catch (e) {
-            console.warn('[CallAnalyzer] Web Speech API initialization failed', e);
+      // START RECORDING
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioChunksRef.current = [];
+        
+        const mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            audioChunksRef.current.push(event.data);
           }
-        } else {
-          showToast('info', 'Microphone Active', 'Live audio recording timer active.');
+        };
+
+        mediaRecorder.onstop = () => {
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+          const audioUrl = URL.createObjectURL(audioBlob);
+          setAudioSrc(audioUrl);
+          // Stop media tracks
+          stream.getTracks().forEach(track => track.stop());
+        };
+
+        mediaRecorder.start();
+        mediaRecorderRef.current = mediaRecorder;
+
+        setIsRecording(true);
+        setRecordingSeconds(0);
+        setTranscript('');
+        setFileName('recording_live_audio.wav');
+        showToast('info', 'Microphone Active', 'Speak clearly into your microphone...');
+
+        recordingTimerRef.current = setInterval(() => {
+          setRecordingSeconds(prev => prev + 1);
+        }, 1000);
+
+        // Web Speech API Listener (Supports English + Indian Regional Hindi)
+        if (typeof window !== 'undefined') {
+          const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+          if (SpeechRecognition) {
+            try {
+              const recognition = new SpeechRecognition();
+              recognition.continuous = true;
+              recognition.interimResults = true;
+              recognition.lang = 'en-IN'; // Multi-lingual Indian English / Hindi phonetic
+
+              recognition.onresult = (event: any) => {
+                let finalTranscript = '';
+                let interimTranscript = '';
+
+                for (let i = 0; i < event.results.length; i++) {
+                  const chunk = event.results[i][0].transcript;
+                  if (event.results[i].isFinal) {
+                    finalTranscript += chunk + ' ';
+                  } else {
+                    interimTranscript += chunk;
+                  }
+                }
+
+                const cleanTranscript = (finalTranscript + interimTranscript).trim();
+                if (cleanTranscript) {
+                  setTranscript(cleanTranscript);
+                }
+              };
+
+              recognition.onerror = (event: any) => {
+                console.warn('[CallAnalyzer] Speech recognition error', event.error);
+              };
+
+              recognition.start();
+              recognitionRef.current = recognition;
+            } catch (e) {
+              console.warn('[CallAnalyzer] Web Speech API initialization failed', e);
+            }
+          }
         }
+      } catch (err) {
+        console.error('[CallAnalyzer] Microphone access denied or unavailable', err);
+        showToast('error', 'Microphone Access Required', 'Please allow microphone access in your browser.');
       }
     }
   };
@@ -195,6 +254,9 @@ export default function CallAnalyzerTab() {
       if (recognitionRef.current) {
         try { recognitionRef.current.stop(); } catch (e) {}
       }
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        try { mediaRecorderRef.current.stop(); } catch (e) {}
+      }
     };
   }, []);
 
@@ -203,7 +265,9 @@ export default function CallAnalyzerTab() {
     if (file) {
       setFileName(file.name);
       setDuration('00:42');
-      setTranscript(`Audio file "${file.name}" loaded: "Caller posing as bank official requesting OTP verification for account unblock."`);
+      const url = URL.createObjectURL(file);
+      setAudioSrc(url);
+      setTranscript(`Audio file "${file.name}" loaded: "Caller posing as bank executive requesting OTP verification to avoid card block."`);
       showToast('success', 'Audio File Loaded', `${file.name} ready for AI analysis.`);
     }
   };
@@ -226,7 +290,7 @@ export default function CallAnalyzerTab() {
       const phrases = transcript.split(/(?<=[.?!])\s+/);
       
       for (const phrase of phrases) {
-        if (/otp|pin|cvv|block|suspend|kyc|verify|cbi|police|arrest|anydesk|teamviewer|urgent|immediately|freez/i.test(phrase)) {
+        if (/otp|pin|cvv|block|suspend|kyc|verify|cbi|police|arrest|anydesk|teamviewer|urgent|immediately|freez|bank|account|sbi|hdfc/i.test(phrase)) {
           suspiciousSentences.push(`"${phrase.trim()}"`);
         }
       }
@@ -262,6 +326,16 @@ export default function CallAnalyzerTab() {
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
+      {/* Hidden Audio Player for real voice playback */}
+      {audioSrc && (
+        <audio
+          ref={audioRef}
+          src={audioSrc}
+          onEnded={() => setIsPlaying(false)}
+          className="hidden"
+        />
+      )}
+
       {/* Title Header */}
       <div>
         <div className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-100 text-[#5345ED] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-2">
@@ -361,8 +435,9 @@ export default function CallAnalyzerTab() {
             <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => setIsPlaying(!isPlaying)}
+                  onClick={togglePlayAudio}
                   className="w-10 h-10 rounded-xl bg-[#5345ED] hover:bg-[#4335dc] text-white flex items-center justify-center transition-transform active:scale-95 cursor-pointer shadow-xs shrink-0"
+                  title={isPlaying ? "Pause Recorded Voice" : "Play Recorded Voice"}
                 >
                   {isPlaying ? <Pause className="w-5 h-5 fill-white" /> : <Play className="w-5 h-5 fill-white ml-0.5" />}
                 </button>
