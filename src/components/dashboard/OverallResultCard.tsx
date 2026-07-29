@@ -57,31 +57,34 @@ export default function OverallResultCard({
 
   return (
     <>
-      <div className="glass-card glass-card-hover rounded-3xl p-6 flex flex-col justify-between h-full relative overflow-hidden">
+      <div className="glass-card glass-card-hover rounded-3xl p-6 md:p-7 flex flex-col justify-between h-full relative overflow-hidden space-y-6">
         <div className="space-y-5">
           {/* Card Header */}
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-[#5345ED]">
+              <div className="w-9 h-9 rounded-2xl bg-indigo-50 flex items-center justify-center text-[#5345ED]">
                 <ShieldCheck className="w-5 h-5 stroke-[2.5]" />
               </div>
-              <h2 className="text-base font-bold text-slate-900">Overall AI Result</h2>
+              <div>
+                <h2 className="text-base font-bold text-slate-900">Overall AI Diagnosis</h2>
+                <p className="text-[11px] text-slate-400 font-medium">Real-time threat evaluation</p>
+              </div>
             </div>
 
-            {/* Status Pills Selector Display */}
-            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-lg transition-all ${
-                isSafe ? 'bg-emerald-500 text-white shadow-xs' : 'text-slate-500'
+            {/* Status Pill Display */}
+            <div className="flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl shrink-0">
+              <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg transition-all ${
+                isSafe ? 'bg-emerald-500 text-white shadow-xs' : 'text-slate-400'
               }`}>
                 Safe
               </span>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-lg transition-all ${
-                isSuspicious ? 'bg-amber-500 text-white shadow-xs' : 'text-slate-500'
+              <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg transition-all ${
+                isSuspicious ? 'bg-amber-500 text-white shadow-xs' : 'text-slate-400'
               }`}>
                 Suspicious
               </span>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-lg transition-all ${
-                isScam ? 'bg-red-500 text-white shadow-xs' : 'text-slate-500'
+              <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg transition-all ${
+                isScam ? 'bg-red-500 text-white shadow-xs' : 'text-slate-400'
               }`}>
                 Scam
               </span>
@@ -89,7 +92,7 @@ export default function OverallResultCard({
           </div>
 
           {/* Large Risk Shield Hero Section with Framer Motion */}
-          <div className="flex flex-col items-center text-center space-y-3 py-2">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 bg-slate-50/60 rounded-2xl p-5 border border-slate-100">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentLevelLabel}
@@ -97,7 +100,7 @@ export default function OverallResultCard({
                 animate={{ scale: 1, opacity: 1, rotate: 0 }}
                 exit={{ scale: 0.8, opacity: 0, rotate: 5 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                className="relative"
+                className="relative shrink-0"
               >
                 <div
                   className={`w-20 h-24 rounded-3xl flex items-center justify-center text-white shadow-xl transition-all duration-500 ${
@@ -127,9 +130,9 @@ export default function OverallResultCard({
               </motion.div>
             </AnimatePresence>
 
-            <div className="space-y-1">
+            <div className="space-y-1.5 text-center sm:text-left">
               <h3
-                className={`text-lg font-black tracking-tight ${
+                className={`text-lg md:text-xl font-black tracking-tight ${
                   isScam ? 'text-red-600' : isSuspicious ? 'text-amber-600' : 'text-emerald-600'
                 }`}
               >
@@ -140,17 +143,17 @@ export default function OverallResultCard({
                   : 'Looks Safe & Legitimate!'}
               </h3>
 
-              <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-slate-700">
+              <div className="flex items-center justify-center sm:justify-start gap-2 text-xs font-bold text-slate-700">
                 <span>Risk Score:</span>
                 <span
-                  className={`text-sm font-black ${
+                  className={`text-base font-black ${
                     isScam ? 'text-red-600' : isSuspicious ? 'text-amber-600' : 'text-emerald-600'
                   }`}
                 >
                   {currentScore}%
                 </span>
                 <span
-                  className={`text-[10px] uppercase font-extrabold px-2 py-0.5 rounded-full ${
+                  className={`text-[10px] uppercase font-extrabold px-2.5 py-0.5 rounded-full ${
                     isScam
                       ? 'bg-red-100 text-red-700'
                       : isSuspicious
@@ -158,7 +161,7 @@ export default function OverallResultCard({
                       : 'bg-emerald-100 text-emerald-700'
                   }`}
                 >
-                  ({currentLevelLabel})
+                  {currentLevelLabel}
                 </span>
               </div>
             </div>
@@ -176,7 +179,7 @@ export default function OverallResultCard({
           >
             <div className="flex items-center gap-2 font-bold text-xs text-slate-900">
               <Lightbulb className="w-4 h-4 text-amber-600 shrink-0" />
-              <span>AI Summary</span>
+              <span>AI Summary & Threat Analysis</span>
             </div>
             <p className="text-xs text-slate-700 font-medium leading-relaxed">
               {currentSummary}
@@ -189,8 +192,8 @@ export default function OverallResultCard({
               isSafe ? 'bg-emerald-50/80 border-emerald-200/80' : 'bg-emerald-50/80 border-emerald-200/80'
             }`}
           >
-            <h4 className="text-xs font-bold text-emerald-900">Safe Next Steps</h4>
-            <div className="space-y-1.5">
+            <h4 className="text-xs font-bold text-emerald-900">Recommended Action Steps</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {activeAnalysisObj.recommendedActions.map((step, idx) => (
                 <div key={idx} className="flex items-start gap-2 text-xs font-semibold text-emerald-800">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 stroke-[2.5] mt-0.5" />
@@ -202,13 +205,13 @@ export default function OverallResultCard({
         </div>
 
         {/* Action Buttons */}
-        <div className="space-y-2.5 pt-4">
+        <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
           <button
             onClick={onReportClick}
-            className="w-full bg-[#5345ED] hover:bg-[#4335dc] active:scale-[0.99] text-white text-xs font-bold py-3.5 px-4 rounded-xl transition-all shadow-md shadow-indigo-500/25 flex items-center justify-center gap-2 cursor-pointer"
+            className="flex-1 w-full bg-[#5345ED] hover:bg-[#4335dc] active:scale-[0.99] text-white text-xs font-bold py-3.5 px-4 rounded-xl transition-all shadow-md shadow-indigo-500/25 flex items-center justify-center gap-2 cursor-pointer"
           >
             <Flag className="w-4 h-4" />
-            <span>Report Scam</span>
+            <span>Report This Scam</span>
           </button>
 
           <button
@@ -216,10 +219,10 @@ export default function OverallResultCard({
               setIsModalOpen(true);
               if (onViewReportClick) onViewReportClick();
             }}
-            className="w-full bg-indigo-50 hover:bg-indigo-100/80 active:scale-[0.99] text-[#5345ED] text-xs font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="flex-1 w-full bg-indigo-50 hover:bg-indigo-100/80 active:scale-[0.99] text-[#5345ED] text-xs font-bold py-3.5 px-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer border border-indigo-100"
           >
             <FileText className="w-4 h-4" />
-            <span>View Full Report</span>
+            <span>View Detailed Audit Report</span>
           </button>
         </div>
       </div>

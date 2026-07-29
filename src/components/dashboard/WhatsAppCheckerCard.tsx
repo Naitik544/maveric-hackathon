@@ -132,8 +132,8 @@ export default function WhatsAppCheckerCard({ onAnalyze }: WhatsAppCheckerCardPr
           </div>
 
           {/* Upload Screenshot / File Bar */}
-          <div className="flex items-center justify-between bg-slate-50 border border-slate-200/80 rounded-xl px-3 py-2 text-xs">
-            <div className="flex items-center gap-2 text-slate-600 truncate max-w-[180px]">
+          <div className="flex items-center justify-between bg-slate-50/80 border border-slate-200/80 rounded-xl px-3 py-2 text-xs">
+            <div className="flex items-center gap-2 text-slate-600 truncate min-w-0 pr-2">
               <FileImage className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
               <span className="truncate font-medium text-[11px]">
                 {uploadedFile ? uploadedFile : 'Upload chat image / screenshot'}
@@ -146,7 +146,7 @@ export default function WhatsAppCheckerCard({ onAnalyze }: WhatsAppCheckerCardPr
               className="text-emerald-700 hover:bg-emerald-50 font-bold text-[11px] px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1 cursor-pointer shrink-0"
             >
               <Upload className="w-3 h-3" />
-              <span>Upload</span>
+              <span>Browse</span>
             </button>
             <input
               ref={fileInputRef}

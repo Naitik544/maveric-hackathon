@@ -20,7 +20,7 @@ import ReportScamTab from '@/components/views/ReportScamTab';
 import HistoryTab from '@/components/views/HistoryTab';
 import SettingsTab from '@/components/views/SettingsTab';
 import { ScamAnalysis } from '@/data/mockData';
-import { ShieldCheck, Zap, Lock, Sparkles } from 'lucide-react';
+import { ShieldCheck, Zap, Lock, Sparkles, Activity } from 'lucide-react';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<NavTab>('dashboard');
@@ -41,7 +41,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#F6F8FC] text-slate-900 font-sans antialiased">
+    <div className="flex min-h-screen bg-[#F6F8FC] text-slate-900 font-sans antialiased overflow-x-hidden">
       {/* Sidebar */}
       <Sidebar
         activeTab={activeTab}
@@ -73,7 +73,7 @@ export default function Home() {
             >
               {activeTab === 'dashboard' && (
                 <div className="space-y-8 max-w-[1600px] mx-auto">
-                  {/* 1. Welcome Section */}
+                  {/* 1. Welcome Section Banner */}
                   <div className="bg-gradient-to-r from-white via-indigo-50/40 to-purple-50/30 border border-slate-200/80 rounded-3xl p-6 md:p-8 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
                     <div className="space-y-2 max-w-2xl relative z-10">
                       <div className="inline-flex items-center gap-2 bg-indigo-100/80 border border-indigo-200 text-[#5345ED] text-[11px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
@@ -113,22 +113,36 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* Real-time Dashboard Analytics Cards & Threat Distribution */}
-                  <DashboardAnalytics />
+                  {/* 2. Sequential AI Scam Checkers Grid (3 Clean Columns) */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h2 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+                          <Activity className="w-5 h-5 text-[#5345ED]" />
+                          <span>AI Scam Detection Studio</span>
+                        </h2>
+                        <p className="text-xs text-slate-500 font-medium">
+                          Select an analyzer below to evaluate SMS messages, WhatsApp chats, or call recordings in real-time.
+                        </p>
+                      </div>
+                    </div>
 
-                  {/* 2. Three Analyzer Cards + Overall Result Card */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 items-stretch">
-                    {/* Card 1: SMS Checker */}
-                    <SMSCheckerCard onAnalyze={handleSubAnalysis} />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+                      {/* Step 1: SMS Checker */}
+                      <SMSCheckerCard onAnalyze={handleSubAnalysis} />
 
-                    {/* Card 2: WhatsApp Checker */}
-                    <WhatsAppCheckerCard onAnalyze={handleSubAnalysis} />
+                      {/* Step 2: WhatsApp Checker */}
+                      <WhatsAppCheckerCard onAnalyze={handleSubAnalysis} />
 
-                    {/* Card 3: Call Analyzer */}
-                    <CallAnalyzerCard onAnalyze={handleSubAnalysis} />
+                      {/* Step 3: Call Analyzer */}
+                      <CallAnalyzerCard onAnalyze={handleSubAnalysis} />
+                    </div>
+                  </div>
 
-                    {/* Card 4: Overall Result Diagnosis Card */}
+                  {/* 3. Live Overall AI Result Panel (Prominent Wide Section) */}
+                  <div className="space-y-4">
                     <OverallResultCard
+                      analysis={overallResult}
                       riskScore={overallResult.riskScore}
                       riskLevel={overallResult.riskLevel}
                       summary={overallResult.summary}
@@ -137,7 +151,10 @@ export default function Home() {
                     />
                   </div>
 
-                  {/* Lower Section: Stay Safe Tips & Recent History */}
+                  {/* 4. Real-time Dashboard Analytics Cards & Threat Distribution */}
+                  <DashboardAnalytics />
+
+                  {/* 5. Lower Section: Stay Safe Tips & Recent History */}
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                     <div className="lg:col-span-5">
                       <StaySafeTips />

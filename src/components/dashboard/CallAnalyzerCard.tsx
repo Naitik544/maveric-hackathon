@@ -123,7 +123,7 @@ export default function CallAnalyzerCard({ onAnalyze }: CallAnalyzerCardProps) {
 
             {/* File info and Upload trigger */}
             <div className="flex items-center justify-between text-xs text-slate-600 font-medium pt-2 border-t border-slate-200/60">
-              <div className="flex items-center gap-1.5 truncate max-w-[170px]">
+              <div className="flex items-center gap-1.5 truncate min-w-0 pr-2">
                 <FileAudio className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
                 <span className="truncate text-[11px] font-semibold">{fileName}</span>
               </div>
@@ -133,7 +133,7 @@ export default function CallAnalyzerCard({ onAnalyze }: CallAnalyzerCardProps) {
                 className="text-[#5345ED] hover:bg-indigo-50 font-bold text-[11px] px-2 py-1 rounded-lg transition-colors flex items-center gap-1 cursor-pointer shrink-0"
               >
                 <Upload className="w-3 h-3" />
-                <span>Upload Audio</span>
+                <span>Upload</span>
               </button>
               <input
                 ref={fileInputRef}
