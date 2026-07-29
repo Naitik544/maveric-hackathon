@@ -13,9 +13,13 @@ import {
   Flag,
   Sparkles,
   Volume2,
-  VolumeX
+  VolumeX,
+  MessageCircle,
+  Printer
 } from 'lucide-react';
 import FullReportModal from './FullReportModal';
+import FamilySOSModal from './FamilySOSModal';
+import AuditReportPDFModal from './AuditReportPDFModal';
 import { ScamAnalysis } from '@/data/mockData';
 import { getTranslation } from '@/lib/translations';
 
@@ -39,6 +43,8 @@ export default function OverallResultCard({
   onViewReportClick,
 }: OverallResultCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFamilySOSOpen, setIsFamilySOSOpen] = useState(false);
+  const [isPDFModalOpen, setIsPDFModalOpen] = useState(false);
   const t = getTranslation(selectedLanguage);
 
   const currentScore = analysis ? analysis.riskScore : riskScore;
@@ -234,24 +240,32 @@ export default function OverallResultCard({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+          {/* WhatsApp SOS Button */}
+          <button
+            onClick={() => setIsFamilySOSOpen(true)}
+            className="bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white text-xs font-bold py-3.5 px-4 rounded-xl transition-all shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <MessageCircle className="w-4 h-4 fill-white" />
+            <span>WhatsApp SOS Alert</span>
+          </button>
+
+          {/* Report Scam Button */}
           <button
             onClick={onReportClick}
-            className="flex-1 w-full bg-[#5345ED] hover:bg-[#4335dc] active:scale-[0.99] text-white text-xs font-bold py-3.5 px-4 rounded-xl transition-all shadow-md shadow-indigo-500/25 flex items-center justify-center gap-2 cursor-pointer"
+            className="bg-[#5345ED] hover:bg-[#4335dc] active:scale-[0.99] text-white text-xs font-bold py-3.5 px-4 rounded-xl transition-all shadow-md shadow-indigo-500/25 flex items-center justify-center gap-2 cursor-pointer"
           >
             <Flag className="w-4 h-4" />
             <span>{t.dashboard.reportScamBtn}</span>
           </button>
 
+          {/* Print Audit PDF Button */}
           <button
-            onClick={() => {
-              setIsModalOpen(true);
-              if (onViewReportClick) onViewReportClick();
-            }}
-            className="flex-1 w-full bg-indigo-50 hover:bg-indigo-100/80 active:scale-[0.99] text-[#5345ED] text-xs font-bold py-3.5 px-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer border border-indigo-100"
+            onClick={() => setIsPDFModalOpen(true)}
+            className="bg-indigo-50 hover:bg-indigo-100/80 active:scale-[0.99] text-[#5345ED] text-xs font-bold py-3.5 px-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer border border-indigo-100"
           >
-            <FileText className="w-4 h-4" />
-            <span>{t.dashboard.viewReportBtn}</span>
+            <Printer className="w-4 h-4" />
+            <span>Print Audit PDF</span>
           </button>
         </div>
       </div>
@@ -260,6 +274,20 @@ export default function OverallResultCard({
       <FullReportModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        analysis={activeAnalysisObj}
+      />
+
+      {/* WhatsApp Family SOS Modal */}
+      <FamilySOSModal
+        isOpen={isFamilySOSOpen}
+        onClose={() => setIsFamilySOSOpen(false)}
+        analysis={activeAnalysisObj}
+      />
+
+      {/* Official Audit PDF Modal */}
+      <AuditReportPDFModal
+        isOpen={isPDFModalOpen}
+        onClose={() => setIsPDFModalOpen(false)}
         analysis={activeAnalysisObj}
       />
     </>

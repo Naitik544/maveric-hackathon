@@ -11,6 +11,7 @@ import CallAnalyzerCard from '@/components/dashboard/CallAnalyzerCard';
 import OverallResultCard from '@/components/dashboard/OverallResultCard';
 import UPIVerifierCard from '@/components/dashboard/UPIVerifierCard';
 import GlassHeroStudio from '@/components/dashboard/GlassHeroStudio';
+import CyberSafetyQuiz from '@/components/dashboard/CyberSafetyQuiz';
 import StaySafeTips from '@/components/dashboard/StaySafeTips';
 import RecentHistory from '@/components/dashboard/RecentHistory';
 
@@ -139,7 +140,10 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* 4. Real-time Dashboard Analytics Cards & Threat Distribution */}
+                  {/* 4. Interactive Senior Citizen Cyber Safety Challenge Quiz */}
+                  <CyberSafetyQuiz selectedLanguage={selectedLanguage} />
+
+                  {/* 5. Real-time Dashboard Analytics Cards & Threat Distribution */}
                   <DashboardAnalytics />
 
                   {/* 5. Lower Section: Stay Safe Tips & Recent History */}
