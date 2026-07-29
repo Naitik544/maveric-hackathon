@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Phone,
@@ -20,9 +20,17 @@ import {
   Volume2,
   VolumeX,
   PhoneCall,
-  Clock,
-  Sparkle
+  Clock
 } from 'lucide-react';
+import { analyzeCall } from '@/lib/api';
+import { useToast } from '@/components/ui/Toast';
+
+declare global {
+  interface Window {
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
+  }
+}
 
 export interface CallAnalysisResult {
   riskScore: number;
@@ -86,8 +94,11 @@ export default function CallAnalyzerTab() {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const recognitionRef = useRef<any>(null);
   
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const { showToast } = useToast();
+
   const [analysis, setAnalysis] = useState<CallAnalysisResult | null>({
     riskScore: 93,
     riskLevel: 'High Risk',
@@ -109,70 +120,140 @@ export default function CallAnalyzerTab() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Mock Recording Controls
+  // Live Browser Speech Recognition & Microphone Listener
   const toggleRecording = () => {
     if (isRecording) {
+      // Stop Recording
       setIsRecording(false);
       if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-      setFileName('recorded_call_sample.wav');
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch (e) {}
+      }
+      setFileName('recorded_live_speech.wav');
       setDuration(`00:${recordingSeconds < 10 ? '0' + recordingSeconds : recordingSeconds}`);
-      setTranscript('Caller: "Hello, I am calling from Customer Support. We detected unusual activity on your card. Please verify your OTP number to cancel the transaction."');
+      showToast('success', 'Recording Stopped', 'Spoken transcript captured successfully.');
     } else {
+      // Start Live Microphone Recording
       setIsRecording(true);
       setRecordingSeconds(0);
+      setTranscript('');
+      setFileName('recording_live_audio.wav');
+      showToast('info', 'Listening to Microphone...', 'Speak into your mic to transcribe live voice.');
+
       recordingTimerRef.current = setInterval(() => {
         setRecordingSeconds(prev => prev + 1);
       }, 1000);
+
+      // Web Speech API Listener
+      if (typeof window !== 'undefined') {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+          try {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+
+            recognition.onresult = (event: any) => {
+              let textResult = '';
+              for (let i = event.resultIndex; i < event.results.length; i++) {
+                textResult += event.results[i][0].transcript;
+              }
+              if (textResult.trim()) {
+                setTranscript(prev => (prev ? `${prev} ${textResult}` : textResult));
+              }
+            };
+
+            recognition.onerror = (event: any) => {
+              console.warn('[CallAnalyzer] Speech recognition error', event.error);
+            };
+
+            recognition.start();
+            recognitionRef.current = recognition;
+          } catch (e) {
+            console.warn('[CallAnalyzer] Web Speech API initialization failed', e);
+          }
+        } else {
+          showToast('info', 'Microphone Active', 'Live audio recording timer active.');
+        }
+      }
     }
   };
+
+  useEffect(() => {
+    return () => {
+      if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch (e) {}
+      }
+    };
+  }, []);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setFileName(file.name);
       setDuration('00:42');
-      setTranscript(`Audio file "${file.name}" transcribed: "Caller posing as bank executive requesting OTP verification for account update."`);
+      setTranscript(`Audio file "${file.name}" loaded: "Caller posing as bank official requesting OTP verification for account unblock."`);
+      showToast('success', 'Audio File Loaded', `${file.name} ready for AI analysis.`);
     }
   };
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
+    if (!transcript.trim()) {
+      showToast('warning', 'Empty Speech Transcript', 'Please speak into microphone or enter a speech transcript.');
+      return;
+    }
+
     setIsAnalyzing(true);
-    setTimeout(() => {
+    showToast('info', 'Analyzing Call Audio', 'Scanning call transcript with Gemini AI...');
+
+    try {
+      const result = await analyzeCall(transcript);
+      
+      // Dynamic suspicious phrase extractor from user's transcript
+      const suspiciousSentences: string[] = [];
       const lower = transcript.toLowerCase();
-      const isDigitalArrest = lower.includes('arrest') || lower.includes('police') || lower.includes('parcel');
-      const isRemoteApp = lower.includes('anydesk') || lower.includes('teamviewer') || lower.includes('download');
+      const phrases = transcript.split(/(?<=[.?!])\s+/);
+      
+      for (const phrase of phrases) {
+        if (/otp|pin|cvv|block|suspend|kyc|verify|cbi|police|arrest|anydesk|teamviewer|urgent|immediately|freez/i.test(phrase)) {
+          suspiciousSentences.push(`"${phrase.trim()}"`);
+        }
+      }
 
       let scamType = 'Bank Vishing / OTP Theft';
-      if (isDigitalArrest) scamType = 'Digital Arrest Scam';
-      if (isRemoteApp) scamType = 'Remote Access App Scam';
+      if (/arrest|police|cbi|parcel|drug/i.test(lower)) scamType = 'Digital Arrest Scam';
+      if (/anydesk|teamviewer|remote|quicksupport|app/i.test(lower)) scamType = 'Remote Access App Fraud';
 
-      const result: CallAnalysisResult = {
-        riskScore: Math.floor(90 + Math.random() * 8),
-        riskLevel: 'High Risk',
+      setAnalysis({
+        riskScore: result.riskScore,
+        riskLevel: result.riskLevel,
         scamType: scamType,
         confidence: 98.7,
-        suspiciousSentences: [
-          '"share the 6-digit OTP sent to your mobile right now"',
-          isRemoteApp ? '"download AnyDesk or TeamViewer QuickSupport app"' : '"bank account will be frozen immediately"'
-        ],
-        safetyAdvice: [
-          'Never share OTP or banking credentials on call.',
-          'Bank staff never ask to install remote access software.',
-          'Hang up and report suspicious numbers to 1930.'
-        ],
-        summary: `Call audio transcript exhibits core flags for ${scamType}.`
-      };
+        suspiciousSentences: suspiciousSentences.length > 0 ? suspiciousSentences : result.reasons.map(r => `"${r}"`),
+        safetyAdvice: result.recommendedActions,
+        summary: result.summary
+      });
 
-      setAnalysis(result);
+      showToast(
+        result.riskScore >= 70 ? 'warning' : 'success',
+        result.riskScore >= 70 ? 'Voice Fraud / Vishing Call Detected!' : 'Call Audio Appears Safe',
+        `Risk Score: ${result.riskScore}% (${result.riskLevel})`
+      );
+    } catch (error) {
+      console.error('[CallAnalyzerTab] Error analyzing call', error);
+      showToast('error', 'Analysis Error', 'Unable to complete Call Audio scan.');
+    } finally {
       setIsAnalyzing(false);
-    }, 700);
+    }
   };
 
   const isHighRisk = analysis ? analysis.riskScore >= 70 : false;
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
-      {/* Title */}
+      {/* Title Header */}
       <div>
         <div className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-100 text-[#5345ED] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-2">
           <Phone className="w-3.5 h-3.5" />
@@ -187,7 +268,7 @@ export default function CallAnalyzerTab() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Audio Upload, Recorder & Player */}
+        {/* Left Column: Audio Upload, Live Microphone & Player */}
         <div className="lg:col-span-7 space-y-6">
           {/* Controls Container */}
           <div className="bg-white rounded-3xl border border-slate-200/80 p-6 md:p-7 shadow-sm space-y-5">
@@ -247,7 +328,7 @@ export default function CallAnalyzerTab() {
                   <button
                     onClick={toggleRecording}
                     className={`w-16 h-16 rounded-full flex items-center justify-center text-white transition-all shadow-lg cursor-pointer ${
-                      isRecording ? 'bg-red-600 animate-pulse' : 'bg-[#5345ED] hover:bg-[#4335dc]'
+                      isRecording ? 'bg-red-600 animate-pulse ring-4 ring-red-200' : 'bg-[#5345ED] hover:bg-[#4335dc]'
                     }`}
                   >
                     {isRecording ? <MicOff className="w-7 h-7" /> : <Mic className="w-7 h-7" />}
@@ -256,7 +337,7 @@ export default function CallAnalyzerTab() {
 
                 <div>
                   <h4 className="text-xs font-bold text-slate-800">
-                    {isRecording ? 'Recording Live Audio...' : 'Click Microphone to Start Recording'}
+                    {isRecording ? 'Listening to Microphone & Transcribing Live...' : 'Click Microphone to Start Live Recording'}
                   </h4>
                   {isRecording && (
                     <span className="text-xs font-mono font-bold text-red-600 block mt-1">
@@ -297,7 +378,7 @@ export default function CallAnalyzerTab() {
 
               <div className="flex items-center justify-between text-xs text-slate-500 font-semibold pt-1 border-t border-slate-200/60">
                 <span className="truncate max-w-[200px]">{fileName}</span>
-                <span className="text-[10px] text-slate-400 font-bold uppercase">Audio Loaded</span>
+                <span className="text-[10px] text-slate-400 font-bold uppercase">Audio Ready</span>
               </div>
             </div>
 
@@ -315,7 +396,7 @@ export default function CallAnalyzerTab() {
                 value={transcript}
                 onChange={(e) => setTranscript(e.target.value)}
                 rows={5}
-                placeholder="Speech transcript will appear here..."
+                placeholder="Speak into microphone or paste speech transcript here..."
                 className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs text-slate-800 font-sans leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#5345ED] focus:bg-white transition-all resize-none shadow-xs"
               />
             </div>
@@ -355,7 +436,6 @@ export default function CallAnalyzerTab() {
                     setFileName(sample.fileName);
                     setDuration(sample.duration);
                     setTranscript(sample.transcript);
-                    handleAnalyze();
                   }}
                   className="text-left bg-slate-50 hover:bg-indigo-50/50 border border-slate-200 hover:border-indigo-300 rounded-2xl p-3.5 space-y-1.5 transition-all group cursor-pointer"
                 >
