@@ -30,7 +30,12 @@ export default function RootLayout({
         lang="en"
         className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       >
-        <body className="min-h-full flex flex-col">
+        <body className="min-h-full flex flex-col relative overflow-x-hidden">
+          {/* Ambient Glassmorphism Floating Glow Orbs */}
+          <div className="ambient-orb-1" />
+          <div className="ambient-orb-2" />
+          <div className="ambient-orb-3" />
+
           <ToastProvider>
             {children}
           </ToastProvider>
