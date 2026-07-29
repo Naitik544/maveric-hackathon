@@ -177,8 +177,9 @@ export const RECENT_HISTORY: HistoryItem[] = [
 ];
 
 export const SUPPORTED_LANGUAGES = [
-  { code: 'en', name: 'English' },
+  { code: 'gu', name: 'Gujarati (ગુજરાતી)' },
   { code: 'hi', name: 'Hindi (हिंदी)' },
+  { code: 'en', name: 'English' },
   { code: 'hinglish', name: 'Hinglish' },
   { code: 'mr', name: 'Marathi (मराठी)' },
   { code: 'ta', name: 'Tamil (தமிழ்)' },
