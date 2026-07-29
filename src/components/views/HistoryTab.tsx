@@ -155,6 +155,32 @@ const INITIAL_HISTORY_RECORDS: HistoryRecord[] = [
 
 export default function HistoryTab() {
   const [historyList, setHistoryList] = useState<HistoryRecord[]>(INITIAL_HISTORY_RECORDS);
+
+  React.useEffect(() => {
+    try {
+      const saved = localStorage.getItem('safebank_user_history');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const userRecords: HistoryRecord[] = parsed.map((item: any, idx: number) => ({
+            id: item.id || `user-rec-${idx}`,
+            type: item.type || 'SMS',
+            title: item.title || 'User Reported Scam',
+            preview: item.preview || 'Submitted scam report',
+            riskScore: item.riskScore || 98,
+            riskLevel: item.riskLevel || 'High Risk',
+            category: 'User Reported Fraud',
+            date: '2026-07-29',
+            timestamp: item.timestamp || 'Recently',
+            summary: item.preview || 'User reported fraudulent attempt.',
+            reasons: ['Reported by SafeBank AI community member', 'Unverified scammer contact'],
+            recommendedActions: ['Do not respond or send money', 'Call 1930 Cyber Helpline']
+          }));
+          setHistoryList([...userRecords, ...INITIAL_HISTORY_RECORDS]);
+        }
+      }
+    } catch (e) {}
+  }, []);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<'All' | 'High Risk' | 'Safe'>('All');
   const [selectedType, setSelectedType] = useState<'All' | 'SMS' | 'WhatsApp' | 'Call'>('All');
