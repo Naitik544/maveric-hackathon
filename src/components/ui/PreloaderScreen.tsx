@@ -27,7 +27,7 @@ export default function PreloaderScreen() {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0, scale: 1.05 }}
           transition={{ duration: 0.5, ease: 'easeInOut' }}
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950 text-white select-none overflow-hidden"
+          className="fixed inset-0 top-0 left-0 right-0 bottom-0 w-screen h-screen z-[999999] flex flex-col items-center justify-center bg-slate-950 text-white select-none overflow-hidden"
         >
           {/* Ambient Glowing Orbs */}
           <div className="absolute w-[500px] h-[500px] bg-[#5345ED]/20 rounded-full blur-[120px] pointer-events-none" />
