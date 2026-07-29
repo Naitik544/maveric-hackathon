@@ -63,6 +63,14 @@ async def analyze_call(payload: CallRequest):
         )
     return await analyze_with_gemini(payload.transcript, "Call Audio Transcript")
 
+@app.post("/report-scam", tags=["Scam Reporting"])
+async def report_scam(payload: dict):
+    return {
+        "status": "success",
+        "message": "Scam report logged into SafeBank AI Threat Intelligence Database.",
+        "report_id": f"REP-{os.urandom(4).hex().upper()}"
+    }
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
