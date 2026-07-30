@@ -1,6 +1,6 @@
 # 🛡️ SafeBank AI — AI Financial Safety Assistant for India.
 
-> **Empowering Senior Citizens & Citizens across Gujarat and India against Digital Banking Fraud with Multi-Lingual AI Intelligence.**
+> ***Empowering Senior Citizens & Citizens across Gujarat and India against Digital Banking Fraud with Multi-Lingual AI Intelligence.***
 
 ---
 
