@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import FullReportModal from '../dashboard/FullReportModal';
 import { ScamAnalysis } from '@/data/mockData';
+import { useToast } from '@/components/ui/Toast';
 
 export interface HistoryRecord {
   id: string;
@@ -155,6 +156,37 @@ const INITIAL_HISTORY_RECORDS: HistoryRecord[] = [
 
 export default function HistoryTab() {
   const [historyList, setHistoryList] = useState<HistoryRecord[]>(INITIAL_HISTORY_RECORDS);
+  const { showToast } = useToast();
+
+  const handleExportCSV = () => {
+    try {
+      const headers = ['Record ID', 'Channel Type', 'Title', 'Category', 'Risk Score', 'Risk Level', 'Date', 'Summary'];
+      const rows = historyList.map(r => [
+        `"${r.id}"`,
+        `"${r.type}"`,
+        `"${r.title.replace(/"/g, '""')}"`,
+        `"${r.category.replace(/"/g, '""')}"`,
+        `"${r.riskScore}%"`,
+        `"${r.riskLevel}"`,
+        `"${r.date}"`,
+        `"${r.summary.replace(/"/g, '""')}"`
+      ]);
+
+      const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `SafeBank_Scan_History_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      showToast('success', 'CSV Exported Successfully!', 'Scan history downloaded as CSV file.');
+    } catch (err) {
+      showToast('error', 'Export Error', 'Unable to generate CSV download.');
+    }
+  };
 
   React.useEffect(() => {
     try {
@@ -263,7 +295,10 @@ export default function HistoryTab() {
           </p>
         </div>
 
-        <button className="bg-[#5345ED] hover:bg-[#4335dc] text-white text-xs font-bold px-4 py-3 rounded-2xl transition-all shadow-md shadow-indigo-500/20 flex items-center gap-2 w-fit cursor-pointer">
+        <button
+          onClick={handleExportCSV}
+          className="bg-[#5345ED] hover:bg-[#4335dc] text-white text-xs font-bold px-4 py-3 rounded-2xl transition-all shadow-md shadow-indigo-500/20 flex items-center gap-2 w-fit cursor-pointer"
+        >
           <Download className="w-4 h-4" />
           <span>Export History CSV</span>
         </button>
