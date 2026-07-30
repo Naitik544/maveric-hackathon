@@ -12,7 +12,7 @@
 - **🌐 Multi-Lingual Regional Support (English, Hindi - हिंदी, Gujarati - ગુજરાતી)**
   - Seamless 1-click real-time UI translation specifically tailored for users and senior citizens in Gujarat and across India.
 - **📱 Real-Time SMS & WhatsApp Scam Checkers**
-  - Instant 300ms evaluation of suspicious URLs (`bit.ly`, `fake-bank.in`), artificial urgency triggers, and KYC / OTP theft attempts.
+  - Instant 300Ms evaluation of suspicious URLs (`bit.ly`, `fake-bank.in`), artificial urgency triggers, and KYC / OTP theft attempts.
 - **🎙️ Live Mic Voice Recorder & Audio Vishing Analyzer**
   - Built-in `MediaRecorder` audio player capturing real microphone speech with Web Speech API transcription to detect impersonating bank officers, CBI digital arrest calls, and remote access app traps (AnyDesk/TeamViewer).
 - **💳 NPCI & Cyber Crime UPI / QR Code Fraud Verifier**
