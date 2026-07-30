@@ -43,49 +43,94 @@ Do NOT include markdown backticks around JSON output. Return pure JSON.
 """
 
 def fallback_rule_based_analyzer(text: str, content_type: str) -> AnalysisResponse:
-    """Fallback threat analysis engine if Gemini API key is missing or encounters network errors."""
-    lower = text.toLowerCase() if hasattr(text, 'toLowerCase') else text.lower()
-    
-    is_phishing = any(k in lower for k in ['bit.ly', 'kyc', 'block', 'immediate', 'pan card', 'http', 'lien'])
-    is_bill = any(k in lower for k in ['electricity', 'disconnect', 'power cut', 'unpaid bill'])
-    is_lottery = any(k in lower for k in ['won', 'prize', 'lakh', 'crore', 'claim', 'kbc'])
-    is_otp = any(k in lower for k in ['otp', 'pin', 'cvv', 'password', 'anydesk', 'teamviewer'])
-    is_arrest = any(k in lower for k in ['arrest', 'cbi', 'police', 'parcel', 'customs'])
+    """Fallback threat analysis engine with dynamic NLP scoring if Gemini API key is missing."""
+    lower = text.lower().strip()
+    score = 0
+    reasons = []
+    actions = []
+    category = "General Communication"
 
-    if is_phishing or is_bill or is_lottery or is_otp or is_arrest:
-        cat = "Bank KYC Phishing"
-        if is_bill: cat = "Electricity Bill Scam"
-        if is_lottery: cat = "Lottery / Cash Prize Scam"
-        if is_otp: cat = "Vishing OTP / Remote App Fraud"
-        if is_arrest: cat = "Digital Arrest Scam"
-
+    if not lower:
         return AnalysisResponse(
-            riskScore=94,
-            riskLevel="High Risk",
-            scamCategory=cat,
-            confidence=98.5,
-            reasons=[
-                "Contains suspicious unverified links or urgent demands",
-                "Requests sensitive credentials (OTP, PIN, or PAN details)",
-                "Exhibits classic coercion and panic tactics common in Indian banking fraud"
-            ],
-            safetyAdvice=[
-                "Do not click on any links in the message",
-                "Never share 6-digit OTPs or UPI PINs with anyone",
-                "Report immediately to 1930 Cyber Crime Helpline",
-                "Contact your bank using official customer care numbers"
-            ],
-            summary=f"High risk detected. This {content_type} shows strong indicators of {cat}."
+            riskScore=0,
+            riskLevel="Safe",
+            scamCategory="Clean Text",
+            confidence=99.0,
+            reasons=["No text input provided."],
+            safetyAdvice=["Enter text to perform analysis."],
+            summary="Empty input."
         )
-    
+
+    # 1. Check Links
+    url_match = re.search(r'(https?://[^\s]+|www\.[^\s]+|[a-z0-9-]+\.(com|in|org|net|xyz|top|info|site|app|apk)[^\s]*)', lower)
+    if url_match:
+        domain = url_match.group(0)
+        if re.search(r'sbi\.co\.in|hdfcbank\.com|icicibank\.com|axisbank\.com|gov\.in|nic\.in|cybercrime\.gov\.in', domain):
+            score += 5
+        elif re.search(r'bit\.ly|tinyurl|kyc|block|update|rewards|claim|free|pay-bill|refund|login', domain):
+            score += 45
+            reasons.append(f"Contains high-risk unverified domain link ({domain[:30]})")
+            category = "Phishing Link Scam"
+        else:
+            score += 30
+            reasons.append(f"Contains external URL link ({domain[:30]})")
+            category = "Unverified Web Link"
+
+    # 2. Check Credential Requests
+    if re.search(r'otp|one time password|pin|cvv|password|debit card|credit card|expiry date', lower):
+        score += 40
+        reasons.append("Directly requests 6-digit OTP, UPI PIN, CVV, or card credentials")
+        actions.append("NEVER share OTP, PIN, or CVV with anyone over SMS or calls")
+        if "Scam" not in category: category = "OTP / Credential Harvesting"
+
+    # 3. Check Panic Triggers
+    if re.search(r'blocked|suspend|deactivate|disconnected|9:30 pm|today|within 2 hours|immediately|urgent|arrest|police|court|cbi|lien', lower):
+        score += 25
+        reasons.append("Uses artificial panic and time-pressure tactics ('blocked', 'disconnected', 'immediately')")
+        if category == "General Communication": category = "Urgent Coercion Fraud"
+
+    # 4. Check Lottery / Cash Claims
+    if re.search(r'won|winner|lakh|crore|25 lakh|cash prize|kbc|lottery|reward points|refund|cashback|job|salary|telegram', lower):
+        score += 35
+        reasons.append("Promises unearned lottery cash prizes, reward point expiry, or fake job earnings")
+        actions.append("Do not pay any 'processing fee' or 'TDS tax' to claim prizes")
+        category = "Lottery / Cash Reward Fraud"
+
+    # 5. Check APK / Remote Apps
+    if re.search(r'\.apk|anydesk|teamviewer|quicksupport|rustdesk', lower):
+        score += 45
+        reasons.append("Requests installation of dangerous `.apk` files or remote access screen sharing apps")
+        actions.append("Do not download `.apk` files or install AnyDesk/TeamViewer")
+        category = "Malware / Remote Access Fraud"
+
+    score = min(max(score, 5), 98)
+
+    if score >= 75:
+        level = "High Risk"
+        if not actions: actions.append("Do not click any links or respond to this message")
+        actions.append("Report immediately to 1930 Cyber Crime Helpline")
+        actions.append("Block the sender number on your mobile phone")
+    elif score >= 45:
+        level = "Medium Risk"
+        actions.append("Verify caller identity via official bank customer care number")
+    elif score >= 25:
+        level = "Low Risk"
+        actions.append("Exercise general digital caution")
+    else:
+        level = "Safe"
+        reasons.append("No malicious URLs, OTP requests, or panic triggers detected")
+        actions.append("Message appears legitimate and safe")
+
+    summary = f"Analysis complete. Content exhibits {level} markers ({score}% Risk Score) - {category}."
+
     return AnalysisResponse(
-        riskScore=10,
-        riskLevel="Safe",
-        scamCategory="Legitimate Communication",
-        confidence=97.0,
-        reasons=["No suspicious URLs found", "No financial threats or OTP requests detected"],
-        safetyAdvice=["Standard digital awareness applies", "No immediate threat detected"],
-        summary=f"The provided {content_type} appears safe with no malicious flags."
+        riskScore=score,
+        riskLevel=level,
+        scamCategory=category,
+        confidence=98.5,
+        reasons=reasons,
+        safetyAdvice=actions,
+        summary=summary
     )
 
 async def analyze_with_gemini(text: str, content_type: str) -> AnalysisResponse:
